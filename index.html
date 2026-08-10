@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <script>
+    (function() {
+      try {
+        var origFetch = window.fetch;
+        var currentFetch = origFetch;
+        Object.defineProperty(window, 'fetch', {
+          get: function() {
+            return currentFetch;
+          },
+          set: function(val) {
+            currentFetch = val;
+          },
+          configurable: true,
+          enumerable: true
+        });
+      } catch (e) {}
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TerraVista - Land Sales Management System</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    
+
+    /* Tạo khoảng trống phía dưới cho menu xổ xuống trên điện thoại */
+    @media (max-width: 991px) {
+      #navbarMain .navbar-nav {
+        margin-bottom: 1rem !important; 
+      }
+    }
+    :root {
+      --primary-color: #0284c7;
+      --primary-hover: #0369a1;
+      --secondary-color: #0f172a;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --hero-overlay: rgba(15, 23, 42, 0.7);
+    }
+
+    [data-bs-theme="dark"] {
+      --primary-color: #38bdf8;
+      --primary-hover: #0284c7;
+      --secondary-color: #f8fafc;
+      --bg-light: #0f172a;
+      --card-bg: #1e293b;
+      --text-dark: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --hero-overlay: rgba(15, 23, 42, 0.85);
+    }
+
+    /* Ép chữ Vista chuyển thành màu sáng (trắng) khi ở chế độ Dark Mode */
+    [data-bs-theme="dark"] .dark-text-light {
+      color: var(--text-dark) !important; 
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6, .font-heading {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Navbar Styling */
+    .navbar {
+      background-color: var(--card-bg) !important;
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .navbar-brand {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--primary-color) !important;
+    }
+    
+    /* Căn giữa và tạo khoảng cách cho các khối menu */
+    .navbar-nav {
+      gap: 0.5rem;
+      align-items: center; /* QUAN TRỌNG: Ngăn các thẻ bị kéo giãn chiều dọc */
+    }
+
+    /* Thiết kế hình khối cho các thẻ menu */
+    .nav-link {
+      font-weight: 500;
+      color: var(--text-dark) !important;
+      padding: 0.4rem 1rem !important; /* Cân chỉnh lại độ dày trên/dưới cho gọn gàng hơn */
+      background-color: transparent; 
+      border: 1px solid var(--border-color); 
+      border-radius: 8px; /* Bo góc khối */
+      transition: all 0.3s ease; 
+      white-space: nowrap; /* QUAN TRỌNG: Ép chữ luôn nằm trên 1 dòng, không bị rớt chữ */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Hiệu ứng khi di chuột (hover) hoặc khi đang chọn (active) */
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary-color) !important; 
+      background-color: var(--bg-light); 
+      border-color: var(--primary-color); 
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
+    }
+    
+    /* Hero Banner */
+    .hero-section {
+      position: relative;
+      background: linear-gradient(var(--hero-overlay), var(--hero-overlay)), 
+                  url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+      min-height: 580px;
+      display: flex;
+      align-items: center;
+      color: #ffffff;
+      padding: 80px 0;
+    }
+
+    .hero-title {
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Search Box Overlay */
+    .search-box-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      color: var(--text-dark);
+      margin-top: -50px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Land Card Styling */
+    .land-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .land-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .land-card-img-wrapper {
+      position: relative;
+      height: 220px;
+      overflow: hidden;
+    }
+
+    .land-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .land-card:hover .land-card-img {
+      transform: scale(1.06);
+    }
+
+    .badge-category {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-fav {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #ffffff;
+      color: #ef4444;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-fav:hover, .btn-fav.active {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    .land-card-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .land-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .land-specs-list {
+      display: flex;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      margin: 1rem 0;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* Feature Category Card */
+    .category-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      
+      /* --- BỔ SUNG CÁC LỆNH DƯỚI ĐÂY ĐỂ ĐỒNG BỘ CHIỀU CAO --- */
+      height: 100%; /* Ép khối tự động kéo giãn bằng với khối cao nhất trong hàng */
+      display: flex; /* Bật Flexbox để kiểm soát nội dung bên trong */
+      flex-direction: column; /* Xếp icon và chữ theo chiều dọc */
+      justify-content: center; /* Căn toàn bộ nội dung ra chính giữa theo chiều dọc */
+      align-items: center; /* Căn toàn bộ nội dung ra chính giữa theo chiều ngang */
+    }
+
+    .category-card:hover {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: #ffffff !important;
+      transform: translateY(-4px);
+    }
+
+    .category-card:hover .cat-icon {
+      color: #ffffff !important;
+    }
+
+    /* Stats Section */
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+  /* Stats Section */
+    .stat-number {
+      /* QUAN TRỌNG: Dùng hàm clamp để chữ tự động thu nhỏ trên màn hình bé và to lên trên màn hình lớn */
+      font-size: clamp(1.5rem, 3.5vw, 2.75rem); 
+      font-weight: 700;
+      color: var(--primary-color);
+      white-space: nowrap; /* Ép các con số không bao giờ bị rớt xuống dòng */
+    }
+
+    /* Future Development Banner */
+    .future-dev-card {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: 16px;
+      padding: 2.5rem;
+      border: 1px solid #334155;
+    }
+
+    /* Footer */
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 4rem 0 2rem;
+    }
+
+    footer h5 {
+      color: #ffffff;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    footer a {
+      color: #94a3b8;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    footer a:hover {
+      color: #38bdf8;
+    }
+
+    /* Floating Cart Indicator */
+    .floating-cart-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--primary-color);
+      color: #ffffff;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4);
+      z-index: 1000;
+      text-decoration: none;
+      transition: transform 0.2s ease;
+    }
+
+    .floating-cart-btn:hover {
+      transform: scale(1.1);
+      color: #ffffff;
+    }
+
+    .cart-badge-count {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: #ef4444;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+      .search-box-card {
+        padding: 1.25rem;
+        margin-top: -30px;
+      }
+    }
+    /* --- ĐỒNG BỘ HÓA GIAO DIỆN CỤM NÚT BÊN PHẢI (THEME, CART, LOGIN) --- */
+    
+    /* 1. Xử lý nút Theme (Mặt trăng) */
+    #themeToggleBtn {
+      width: 40px !important;
+      height: 40px !important;
+      padding: 0 !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50% !important; /* Ép viền bo tròn tuyệt đối */
+      flex-shrink: 0; /* Ngăn chặn thuộc tính flexbox bóp méo hình dạng */
+      transition: all 0.3s ease;
+    }
+
+    /* 2. Xử lý định dạng khối cho nút Cart, Login và nút John */
+    .navbar .d-flex.align-items-center > a,
+    .navbar .d-flex.align-items-center > button:not(#themeToggleBtn),
+    .navbar .d-flex.align-items-center #userNavContainer a:not(.dropdown-item),
+    .navbar .d-flex.align-items-center #userNavContainer button:not(.dropdown-item) {
+      height: 40px !important; 
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px !important; 
+      padding: 0 1.25rem !important;
+      white-space: nowrap; 
+      flex-shrink: 0; 
+      transition: all 0.3s ease;
+    }
+
+    /* 3. Đồng bộ icon trong menu xổ xuống của tài khoản */
+    .dropdown-menu .dropdown-item {
+      padding: 0.5rem 1.25rem; /* Trả lại khoảng cách chuẩn cho menu */
+    }
+    
+    .dropdown-menu .dropdown-item i {
+      width: 24px;
+      text-align: center;
+      margin-right: 12px;
+    }
+
+    /* 3. Tinh chỉnh vị trí huy hiệu (Badge) đếm số lượng giỏ hàng */
+   /* Tinh chỉnh vị trí huy hiệu Giỏ hàng để không đè lên nút Login */
+    #navCartBadge {
+      position: absolute !important;
+      top: -6px !important;       /* Hơi nhô lên trên viền một chút */
+      right: -6px !important;     /* Neo sát vào góc phải, ngăn tràn sang nút kế bên */
+      left: auto !important;      /* Vô hiệu hóa class start-100 của Bootstrap */
+      transform: none !important; /* Vô hiệu hóa class translate-middle của Bootstrap */
+      z-index: 10;                /* Đảm bảo huy hiệu luôn nổi bật trên cùng */
+    }
+
+    /* Ép tròn đều cho 3 icon phần Why Choose Us */
+    #about .rounded-circle {
+      width: 60px !important;
+      height: 60px !important;
+      padding: 0 !important; /* Gỡ bỏ padding mặc định gây méo hình */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0; /* Ngăn không cho Flexbox bóp méo khung */
+    }
+
+    /* --- KHUNG KÍNH MỜ CHO KHU VỰC THỐNG KÊ --- */
+    .glass-stat-box {
+      background: rgba(255, 255, 255, 0.1); /* Nền trắng trong suốt */
+      border: 1px solid rgba(255, 255, 255, 0.25); /* Viền trắng mờ bao quanh */
+      border-radius: 16px; /* Bo góc mềm mại giống các khối khác */
+      padding: 2rem 1rem;
+      height: 100%; /* Bắt buộc các khối phải cao bằng nhau */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    /* Hiệu ứng nổi lên khi di chuột vào */
+    .glass-stat-box:hover {
+      transform: translateY(-6px);
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Đồng bộ kích thước 2 nút trong phần Hero Banner */
+    .hero-section .btn {
+      width: 280px !important; /* Khóa cứng bề ngang đủ to để chứa trọn vẹn chữ của nút dài nhất */
+      display: inline-flex !important;
+      justify-content: center !important; /* Ép nội dung ra chính giữa */
+      align-items: center !important;
+    }
+    
+    /* Thu nhỏ nút lại một chút trên màn hình điện thoại để không bị tràn viền */
+    @media (max-width: 576px) {
+      .hero-section .btn {
+        width: 100% !important; 
+      }
+    }
+
+    
+
+    /* --- TỐI ƯU HÓA ĐỒNG BỘ MENU TRÊN ĐIỆN THOẠI & TABLET --- */
+    @media (max-width: 991px) {
+      /* 1. Ép toàn bộ danh sách menu ra chính giữa màn hình */
+      #navbarMain .navbar-nav {
+        align-items: center !important; 
+        margin-top: 1rem;
+        margin-bottom: 1.5rem !important;
+        width: 100%;
+      }
+      
+      /* 2. Trả lại kích thước khối menu vừa vặn với chữ */
+      #navbarMain .nav-link {
+        width: auto !important; /* Gỡ bỏ việc ép rộng 100% */
+        justify-content: center !important; 
+        padding: 0.4rem 1.5rem !important; /* Giữ khoảng cách 2 bên chữ rộng rãi dễ bấm chạm */
+      }
+
+      /* 3. Ép cụm nút tiện ích (Mặt trăng, Cart, Login) ra chính giữa */
+      #navbarMain .d-flex {
+        justify-content: center !important;
+        width: 100%;
+        margin-bottom: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+      <i class="fa-solid fa-mountain-city text-primary fs-3"></i>
+      <span>Terra<span class="text-dark dark-text-light">Vista</span></span>
+    </a>
+      
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <i class="fa-solid fa-bars fs-4"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium">
+          <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#categories">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="#featured">Lands Catalog</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact Us</a></li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-3">
+          <!-- Theme Toggle -->
+          <button class="btn btn-outline-secondary rounded-circle btn-sm p-2" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+            <i class="fa-solid fa-moon" id="themeIcon"></i>
+          </button>
+
+          <!-- Cart Icon Link -->
+          <a href="cart.html" class="btn btn-outline-primary position-relative rounded-pill px-3 py-2 btn-sm fw-semibold">
+            <i class="fa-solid fa-cart-shopping me-1"></i> Cart
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-dark border border-secondary shadow-sm d-none" id="navCartBadge">0</span>
+          </a>
+
+          <!-- User Account Menu -->
+          <div id="userNavContainer">
+            <a href="login.html" class="btn btn-primary rounded-pill btn-sm px-3 py-2 fw-semibold">
+              <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Banner -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <span class="badge bg-primary px-3 py-2 mb-3 rounded-pill text-uppercase fw-bold letter-spacing-1">
+            <i class="fa-solid fa-award me-1"></i> ISO 9001:2015 Certified Platform
+          </span>
+          <h1 class="hero-title">Discover Prime Land and Real Estate Plots for Sale</h1>
+          <p class="lead mb-4 opacity-90">
+            Transparent title deeds, verified boundary surveys, and flexible financing for residential, commercial, and agricultural land projects.
+          </p>
+          <div class="d-flex flex-wrap gap-3">
+            <a href="#featured" class="btn btn-primary btn-lg rounded-pill px-4 fw-semibold">
+              <i class="fa-solid fa-compass me-2"></i> Explore Properties
+            </a>
+            <a href="contact.html" class="btn btn-outline-light btn-lg rounded-pill px-4 fw-semibold">
+              <i class="fa-solid fa-headset me-2"></i> Contact Advisor
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Search & Filter Card -->
+  <section class="container">
+    <div class="search-box-card">
+      <h5 class="fw-bold mb-3"><i class="fa-solid fa-filter text-primary me-2"></i> Filter and Search Land Inventory</h5>
+      <form id="landSearchForm" onsubmit="event.preventDefault(); applyLandFilters();">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Keyword / Location</label>
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+              <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Oakridge, Emerald, Riverfront...">
+            </div>
+          </div>
+
+          <div class="col-md-3 col-6">
+            <label class="form-label small fw-semibold">Land Category</label>
+            <select id="categorySelect" class="form-select">
+              <option value="ALL">All Categories</option>
+              <option value="Residential">Residential Lots</option>
+              <option value="Commercial">Commercial Plots</option>
+              <option value="Agricultural">Agricultural Land</option>
+              <option value="Waterfront">Waterfront Parcels</option>
+              <option value="Industrial">Industrial Zones</option>
+            </select>
+          </div>
+
+          <div class="col-md-3 col-6">
+            <label class="form-label small fw-semibold">Max Price ($)</label>
+            <select id="priceSelect" class="form-select">
+              <option value="ALL">Any Price</option>
+              <option value="50000">Under $50,000</option>
+              <option value="150000">Under $150,000</option>
+              <option value="300000">Under $300,000</option>
+              <option value="500000">Under $500,000</option>
+            </select>
+          </div>
+
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="button" onclick="applyLandFilters()" class="btn btn-primary w-100 rounded-3 fw-semibold py-2">
+              <i class="fa-solid fa-search me-1"></i> Filter
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Property Categories Section -->
+  <section class="py-5" id="categories">
+    <div class="container py-4">
+      <div class="text-center mb-5">
+        <h6 class="text-primary fw-bold text-uppercase">Property Types</h6>
+        <h2 class="fw-bold">Explore Land by Category</h2>
+        <p class="text-muted">Choose from our curated portfolio of verified land parcels</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-2 col-md-4 col-6">
+          <div class="category-card" onclick="filterByCategory('Residential')">
+            <i class="fa-solid fa-house-chimney fs-2 text-primary cat-icon mb-3"></i>
+            <h6 class="fw-bold mb-1">Residential</h6>
+            <small class="text-muted">Building Lots</small>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+          <div class="category-card" onclick="filterByCategory('Commercial')">
+            <i class="fa-solid fa-building-user fs-2 text-primary cat-icon mb-3"></i>
+            <h6 class="fw-bold mb-1">Commercial</h6>
+            <small class="text-muted">Business Hubs</small>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+          <div class="category-card" onclick="filterByCategory('Agricultural')">
+            <i class="fa-solid fa-wheat-awn fs-2 text-primary cat-icon mb-3"></i>
+            <h6 class="fw-bold mb-1">Agricultural</h6>
+            <small class="text-muted">Farming and Crops</small>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+          <div class="category-card" onclick="filterByCategory('Waterfront')">
+            <i class="fa-solid fa-water fs-2 text-primary cat-icon mb-3"></i>
+            <h6 class="fw-bold mb-1">Waterfront</h6>
+            <small class="text-muted">Lakes and Coasts</small>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+          <div class="category-card" onclick="filterByCategory('Industrial')">
+            <i class="fa-solid fa-industry fs-2 text-primary cat-icon mb-3"></i>
+            <h6 class="fw-bold mb-1">Industrial</h6>
+            <small class="text-muted">Warehousing</small>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+          <div class="category-card" onclick="filterByCategory('ALL')">
+            <i class="fa-solid fa-border-all fs-2 text-primary cat-icon mb-3"></i>
+            <h6 class="fw-bold mb-1">Show All</h6>
+            <small class="text-muted">All Listings</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Lands Catalog -->
+  <section class="py-5 bg-body-tertiary" id="featured">
+    <div class="container py-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-end mb-4">
+        <div>
+          <h6 class="text-primary fw-bold text-uppercase">Exclusive Catalog</h6>
+          <h2 class="fw-bold mb-0">Featured Available Land Plots</h2>
+        </div>
+        <div class="text-muted mt-2 mt-md-0" id="resultCountText">Showing 6 properties</div>
+      </div>
+
+      <!-- Land Grid Container -->
+      <div class="row g-4" id="landContainer">
+        <!-- Rendered dynamically via JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us / Value Proposition -->
+  <section class="py-5" id="about">
+    <div class="container py-4">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <span class="text-primary fw-bold text-uppercase">Trust and Legal Protection</span>
+          <h2 class="fw-bold my-3">Why Buyers and Investors Choose TerraVista</h2>
+          <p class="text-muted mb-4">
+            Navigating land transactions requires absolute legal clarity, geographical accuracy, and buyer security. Our system streamlines land reservations with 100% verified documentation.
+          </p>
+
+          <div class="d-flex align-items-start gap-3 mb-4">
+            <div class="bg-primary-subtle text-primary p-3 rounded-circle fs-4">
+              <i class="fa-solid fa-file-contract"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-1">100% Verified Title Deeds</h5>
+              <p class="text-muted mb-0 small">Every plot in our database undergoes stringent government registry verification and legal title clearance.</p>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3 mb-4">
+            <div class="bg-primary-subtle text-primary p-3 rounded-circle fs-4">
+              <i class="fa-solid fa-ruler-combined"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-1">Accurate GIS Boundary Surveys</h5>
+              <p class="text-muted mb-0 small">High-precision satellite boundary mapping and physical beacon markers provided with every parcel.</p>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3">
+            <div class="bg-primary-subtle text-primary p-3 rounded-circle fs-4">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-1">Escrow and Secure Reservation</h5>
+              <p class="text-muted mb-0 small">Reserve land online with instant receipt generation and client portal order tracking.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="position-relative">
+            <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80" alt="Land Survey" class="img-fluid rounded-4 shadow-lg">
+            <div class="position-absolute bottom-0 start-0 m-4 bg-white dark-bg-dark p-3 rounded-3 shadow border border-light text-dark">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-circle-check text-success fs-3"></i>
+                <div>
+                  <div class="fw-bold">Government Verified</div>
+                  <small class="text-muted">Certified Title Deeds</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- System Statistics Counter -->
+  <section class="py-5 bg-primary text-white">
+    <div class="container py-2">
+      <div class="row g-4 text-center">
+        <!-- Khối 1 -->
+        <div class="col-lg-3 col-6">
+          <div class="glass-stat-box">
+            <div class="stat-number text-white">1,480+</div>
+            <div class="fw-semibold mt-2">Land Parcels Sold</div>
+          </div>
+        </div>
+        <!-- Khối 2 -->
+        <div class="col-lg-3 col-6">
+          <div class="glass-stat-box">
+            <div class="stat-number text-white">$320M+</div>
+            <div class="fw-semibold mt-2">Total Property Value</div>
+          </div>
+        </div>
+        <!-- Khối 3 -->
+        <div class="col-lg-3 col-6">
+          <div class="glass-stat-box">
+            <div class="stat-number text-white">99.4%</div>
+            <div class="fw-semibold mt-2">Satisfied Clients</div>
+          </div>
+        </div>
+        <!-- Khối 4 -->
+        <div class="col-lg-3 col-6">
+          <div class="glass-stat-box">
+            <div class="stat-number text-white">18+</div>
+            <div class="fw-semibold mt-2">Years of Industry Trust</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row g-4 mb-4">
+        <div class="col-lg-4">
+          <a class="navbar-brand d-flex align-items-center gap-2 mb-3 text-white" href="index.html">
+            <i class="fa-solid fa-mountain-city text-primary fs-3"></i>
+            <span>TerraVista Land Management</span>
+          </a>
+          <p class="small">TerraVista is the leading digital platform for premium commercial and residential land acquisitions. We ensure secure escrow and verified title deeds.</p>
+          <div class="d-flex gap-3 fs-5">
+            <a href="#" title="Facebook"><i class="fa-brands fa-facebook"></i></a>
+            <a href="#" title="Twitter"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+            <a href="#" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-4 col-6">
+          <h5>Quick Links</h5>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="index.html">Home Page</a></li>
+            <li><a href="#featured">Lands Catalog</a></li>
+            <li><a href="cart.html">Shopping Cart</a></li>
+            <li><a href="login.html">Member Login</a></li>
+            <li><a href="register.html">Register Account</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-md-4 col-6">
+          <h5>System Pages</h5>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="profile.html">User Profile</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="contact.html#faq">FAQ Section</a></li>
+            <li><a href="#about">Why Choose Us</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-4 col-md-4">
+          <h5>Contact Head Office</h5>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><i class="fa-solid fa-location-dot text-primary me-2"></i> 742 Evergreen Terrace, Suite 400, Grand Valley</li>
+            <li><i class="fa-solid fa-phone text-primary me-2"></i> +1 (800) 555-LAND / +1 (555) 019-2831</li>
+            <li><i class="fa-solid fa-envelope text-primary me-2"></i> sales@terravistasystem.com</li>
+            <li><i class="fa-solid fa-clock text-primary me-2"></i> Mon - Fri: 8:00 AM - 6:00 PM EST</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr class="border-secondary opacity-25">
+
+      <div class="d-flex flex-wrap justify-content-between align-items-center small py-2">
+        <div>&copy; 2026 TerraVista Commercial Real Estate | All Rights Reserved</div>
+        <div class="d-flex gap-3">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Sale</a>
+          <a href="#">Privacy Policy and Legal Documentation</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating Why Choose Us Button -->
+  <a href="#about" class="floating-cart-btn" title="Why Choose Us">
+    <i class="fa-solid fa-award"></i>
+  </a>
+
+  <!-- Quick View Modal -->
+  <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header border-0 bg-primary text-white p-4">
+          <h5 class="modal-title fw-bold" id="modalLandTitle">Land Details</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4" id="modalLandContent">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;" id="toastContainer"></div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Embedded Vanilla JavaScript Engine & LocalStorage Manager -->
+  <script>
+    // Initial Land Data Catalog
+    const sampleLands = [
+      {
+        id: "land-001",
+        title: "Oakridge Valley Estate - Lot 4B",
+        category: "Residential",
+        price: 125000,
+        area: "2.5 Acres (108,900 sq.ft)",
+        location: "Grand Valley, Hillside District",
+        image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+        zoning: "Residential R-1 Zoned",
+        utilities: "Water, Electricity & Fiber Ready",
+        roadAccess: "Paved County Road Access",
+        featured: true,
+        description: "Prime elevated residential plot with panoramic mountain views. Perfect for custom luxury home build or private villa estate. Clear freehold title deed ready for immediate conveyance."
+      },
+      {
+        id: "land-002",
+        title: "Harbor Light Commercial Hub - Parcel 12",
+        category: "Commercial",
+        price: 385000,
+        area: "1.8 Acres (78,408 sq.ft)",
+        location: "Sunset Bay, Business District",
+        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
+        zoning: "Commercial High-Density C-2",
+        utilities: "High-Capacity Three-Phase Power & Mains Water",
+        roadAccess: "Dual Highway Frontage",
+        featured: true,
+        description: "Prime commercial corner plot situated along the main commercial corridor. Ideal for shopping plaza, corporate offices, or hotel development."
+      },
+      {
+        id: "land-003",
+        title: "Green Pastures Agricultural Plot - Section 8",
+        category: "Agricultural",
+        price: 85000,
+        area: "12.0 Acres (522,720 sq.ft)",
+        location: "Emerald Hills, Rural Sector",
+        image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80",
+        zoning: "Agricultural AG-3 Zoned",
+        utilities: "Deep Water Well & Irrigation Canal Access",
+        roadAccess: "All-Weather Gravel Access",
+        featured: true,
+        description: "Fertile agricultural farmland suitable for organic crops, livestock grazing, or orchard cultivation. Includes soil testing report and water rights."
+      },
+      {
+        id: "land-004",
+        title: "Whispering Pines Waterfront Plot - Shoreline 3",
+        category: "Waterfront",
+        price: 245000,
+        area: "3.2 Acres (139,392 sq.ft)",
+        location: "Riverfront Reserve, Lake District",
+        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+        zoning: "Recreational & Residential R-2",
+        utilities: "Underground Power Line & Eco Septic Zoned",
+        roadAccess: "Private Gated Road",
+        featured: true,
+        description: "Direct lakeside frontage with private dock permission. Scenic environment with mature pine trees and clear waters."
+      },
+      {
+        id: "land-005",
+        title: "Metro Logistics Industrial Park - Lot 9",
+        category: "Industrial",
+        price: 490000,
+        area: "5.5 Acres (239,580 sq.ft)",
+        location: "Metro North, Industrial Belt",
+        image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80",
+        zoning: "Heavy Industrial IND-1",
+        utilities: "Industrial Wastewater & High Voltage Grid",
+        roadAccess: "Heavy Truck turning radius access",
+        featured: false,
+        description: "Flat, graded industrial parcel ready for warehouse construction, manufacturing facility, or logistics distribution depot."
+      },
+      {
+        id: "land-006",
+        title: "Summit View Crest Lot - Plot 22",
+        category: "Residential",
+        price: 165000,
+        area: "1.2 Acres (52,272 sq.ft)",
+        location: "Grand Valley, Crest Heights",
+        image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80",
+        zoning: "Residential Low-Density R-A",
+        utilities: "City Sewer, Municipal Water & Gas",
+        roadAccess: "Subdivision Paved Street",
+        featured: false,
+        description: "Scenic hilltop plot situated in an upscale residential master-planned community. Quiet neighborhood with underground utility infrastructure."
+      }
+    ];
+
+    // LocalStorage Helper Functions
+    function getCart() {
+      return JSON.parse(localStorage.getItem('landCart')) || [];
+    }
+
+    function setCart(cart) {
+      localStorage.setItem('landCart', JSON.stringify(cart));
+      updateCartBadge();
+    }
+
+    function getFavorites() {
+      return JSON.parse(localStorage.getItem('userFavorites')) || [];
+    }
+
+    function toggleFavorite(id) {
+      let favs = getFavorites();
+      if (favs.includes(id)) {
+        favs = favs.filter(fId => fId !== id);
+        showToast("Removed from your saved favorites", "info");
+      } else {
+        favs.push(id);
+        showToast("Added to your saved favorites", "success");
+      }
+      localStorage.setItem('userFavorites', JSON.stringify(favs));
+      renderLands(activeFilteredLands || sampleLands);
+    }
+
+    function getCurrentUser() {
+      return JSON.parse(localStorage.getItem('currentUser')) || null;
+    }
+
+    function updateCartBadge() {
+  const cart = getCart();
+  const count = cart.reduce((total, item) => total + (item.qty || 1), 0);
+
+  // Xử lý huy hiệu (badge) trên thanh Menu
+  const navBadge = document.getElementById('navCartBadge');
+  if (navBadge) {
+    navBadge.innerText = count;
+    // Nếu không có sản phẩm (count = 0) thì thêm class d-none để ẩn đi, ngược lại thì gỡ d-none để hiện ra
+    if (count === 0) {
+      navBadge.classList.add('d-none');
+    } else {
+      navBadge.classList.remove('d-none');
+    }
+  }
+
+  // Xử lý huy hiệu (badge) ở nút Giỏ hàng trôi nổi (dành riêng cho file index.html)
+  const floatingBadge = document.getElementById('floatingCartBadge');
+  if (floatingBadge) {
+    floatingBadge.innerText = count;
+    if (count === 0) {
+      floatingBadge.style.display = 'none';
+    } else {
+      floatingBadge.style.display = 'flex';
+      // Đổi màu nền trắng - chữ đen cho nút trôi nổi
+      floatingBadge.style.background = '#ffffff';
+      floatingBadge.style.color = '#000000';
+      floatingBadge.style.border = '1px solid #ccc';
+    }
+  }
+}
+
+    function updateNavUser() {
+      const user = getCurrentUser();
+      const container = document.getElementById('userNavContainer');
+      if (user) {
+        container.innerHTML = `
+          <div class="dropdown">
+            <button class="btn btn-outline-primary rounded-pill btn-sm dropdown-toggle fw-semibold px-3 py-2" type="button" data-bs-toggle="dropdown">
+              <i class="fa-solid fa-user-circle me-1"></i> ${user.name.split(' ')[0]}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+              <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-id-card me-2 text-primary"></i> My Profile</a></li>
+              <li><a class="dropdown-item" href="cart.html"><i class="fa-solid fa-cart-shopping me-2 text-primary"></i> My Cart</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" onclick="logoutUser()"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
+            </ul>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <a href="login.html" class="btn btn-primary rounded-pill btn-sm px-3 py-2 fw-semibold">
+            <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+          </a>
+        `;
+      }
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('currentUser');
+      showToast("Successfully logged out", "info");
+      updateNavUser();
+    }
+
+    // Toast Notification System
+    function showToast(message, type = 'success') {
+      const toastContainer = document.getElementById('toastContainer');
+      const toastId = 'toast-' + Date.now();
+      const bgClass = type === 'success' ? 'bg-success text-white' : (type === 'danger' ? 'bg-danger text-white' : 'bg-primary text-white');
+      const icon = type === 'success' ? 'fa-circle-check' : (type === 'danger' ? 'fa-triangle-exclamation' : 'fa-circle-info');
+
+      const html = `
+        <div id="${toastId}" class="toast align-items-center ${bgClass} border-0 shadow-lg rounded-3 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body fw-medium">
+              <i class="fa-solid ${icon} me-2"></i> ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      `;
+      toastContainer.insertAdjacentHTML('beforeend', html);
+      const toastElement = document.getElementById(toastId);
+      const bsToast = new bootstrap.Toast(toastElement, { delay: 3500 });
+      bsToast.show();
+      toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
+    }
+
+    // Add Land to Shopping Cart
+    function addToCart(landId) {
+      const land = sampleLands.find(l => l.id === landId);
+      if (!land) return;
+
+      let cart = getCart();
+      const existing = cart.find(item => item.id === landId);
+
+      if (existing) {
+        existing.qty = (existing.qty || 1) + 1;
+      } else {
+        cart.push({ ...land, qty: 1, addedAt: new Date().toISOString() });
+      }
+
+      setCart(cart);
+      showToast(`Added "${land.title}" to your cart!`, "success");
+    }
+
+    // Quick View Modal Renderer
+    function openQuickView(landId) {
+      const land = sampleLands.find(l => l.id === landId);
+      if (!land) return;
+
+      document.getElementById('modalLandTitle').innerText = land.title;
+      document.getElementById('modalLandContent').innerHTML = `
+        <div class="row g-4">
+          <div class="col-md-6">
+            <img src="${land.image}" alt="${land.title}" class="img-fluid rounded-3 shadow-sm w-100" style="height: 260px; object-fit: cover;">
+            <div class="mt-3 p-3 bg-body-tertiary rounded-3">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Category:</span>
+                <span class="fw-semibold">${land.category}</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Zoning Code:</span>
+                <span class="fw-semibold">${land.zoning}</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span class="text-muted small">Access Road:</span>
+                <span class="fw-semibold">${land.roadAccess}</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 d-flex flex-column">
+            <div class="text-primary fs-2 fw-bold mb-1">$${land.price.toLocaleString()}</div>
+            <div class="text-muted mb-3"><i class="fa-solid fa-location-dot me-1 text-danger"></i> ${land.location}</div>
+            
+            <p class="small text-muted mb-3">${land.description}</p>
+            
+            <ul class="list-group list-group-flush small mb-4">
+              <li class="list-group-item bg-transparent px-0"><i class="fa-solid fa-ruler-combined text-primary me-2"></i> <strong>Plot Size:</strong> ${land.area}</li>
+              <li class="list-group-item bg-transparent px-0"><i class="fa-solid fa-bolt text-warning me-2"></i> <strong>Utilities:</strong> ${land.utilities}</li>
+              <li class="list-group-item bg-transparent px-0"><i class="fa-solid fa-file-shield text-success me-2"></i> <strong>Title Status:</strong> Freehold Verified (Clean Deed)</li>
+            </ul>
+
+            <div class="mt-auto d-flex gap-2">
+              <button onclick="addToCart('${land.id}'); bootstrap.Modal.getInstance(document.getElementById('quickViewModal')).hide();" class="btn btn-primary w-100 rounded-pill py-2 fw-semibold">
+                <i class="fa-solid fa-cart-plus me-1"></i> Reserve Land
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const modal = new bootstrap.Modal(document.getElementById('quickViewModal'));
+      modal.show();
+    }
+
+    // Filter Lands Logic
+    let activeFilteredLands = [...sampleLands];
+
+    function applyLandFilters() {
+      const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+      const category = document.getElementById('categorySelect').value;
+      const maxPrice = document.getElementById('priceSelect').value;
+
+      activeFilteredLands = sampleLands.filter(land => {
+        const matchesKeyword = land.title.toLowerCase().includes(keyword) || land.location.toLowerCase().includes(keyword);
+        const matchesCategory = category === 'ALL' || land.category === category;
+        const matchesPrice = maxPrice === 'ALL' || land.price <= parseInt(maxPrice);
+        return matchesKeyword && matchesCategory && matchesPrice;
+      });
+
+      renderLands(activeFilteredLands);
+    }
+
+    function filterByCategory(cat) {
+      document.getElementById('categorySelect').value = cat;
+      applyLandFilters();
+      document.getElementById('featured').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Render Land Cards
+    function renderLands(lands) {
+      const container = document.getElementById('landContainer');
+      const countText = document.getElementById('resultCountText');
+      const favorites = getFavorites();
+
+      countText.innerText = `Showing ${lands.length} properties`;
+
+      if (lands.length === 0) {
+        container.innerHTML = `
+          <div class="col-12 text-center py-5">
+            <i class="fa-solid fa-map-location-dot fs-1 text-muted mb-3"></i>
+            <h5 class="fw-bold">No Matching Land Parcels Found</h5>
+            <p class="text-muted small">Try adjusting your category filters or search keywords.</p>
+            <button class="btn btn-outline-primary btn-sm rounded-pill mt-2" onclick="resetFilters()">Reset All Filters</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = lands.map(land => {
+        const isFav = favorites.includes(land.id);
+        return `
+          <div class="col-lg-4 col-md-6">
+            <div class="land-card">
+              <div class="land-card-img-wrapper">
+                <img src="${land.image}" alt="${land.title}" class="land-card-img">
+                <span class="badge-category">${land.category}</span>
+                <button class="btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${land.id}')" title="Save Favorite">
+                  <i class="fa-solid fa-heart"></i>
+                </button>
+              </div>
+              <div class="land-card-body">
+                <div class="land-price mb-1">$${land.price.toLocaleString()}</div>
+                <h5 class="fw-bold fs-6 mb-2 text-truncate" title="${land.title}">${land.title}</h5>
+                <p class="text-muted small mb-2"><i class="fa-solid fa-location-dot me-1 text-danger"></i> ${land.location}</p>
+                
+                <div class="land-specs-list">
+                  <div><i class="fa-solid fa-ruler-combined me-1"></i> ${land.area.split('(')[0]}</div>
+                  <div><i class="fa-solid fa-shield-halved me-1"></i> Verified</div>
+                </div>
+
+                <div class="d-flex gap-2 mt-auto">
+                  <button onclick="openQuickView('${land.id}')" class="btn btn-outline-secondary btn-sm w-50 rounded-pill fw-semibold">
+                    <i class="fa-solid fa-eye me-1"></i> Details
+                  </button>
+                  <button onclick="addToCart('${land.id}')" class="btn btn-primary btn-sm w-50 rounded-pill fw-semibold">
+                    <i class="fa-solid fa-plus me-1"></i> Reserve
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('categorySelect').value = 'ALL';
+      document.getElementById('priceSelect').value = 'ALL';
+      applyLandFilters();
+    }
+
+    // Theme Switcher Logic
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-bs-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('themeIcon');
+      if (theme === 'dark') {
+        icon.className = 'fa-solid fa-sun text-warning';
+      } else {
+        icon.className = 'fa-solid fa-moon';
+      }
+    }
+
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-bs-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-bs-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeIcon(next);
+    });
+
+    // Initialize Default User if empty
+    function seedDefaultData() {
+      const users = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+      if (users.length === 0) {
+        const demoUser = {
+          id: "usr-demo",
+          name: "John Doe",
+          email: "john.doe@example.com",
+          phone: "+1 (555) 019-2831",
+          address: "123 Oakridge Way, Grand Valley, GV 90210",
+          password: "Password123",
+          registeredAt: new Date().toISOString()
+        };
+        localStorage.setItem('registeredUsers', JSON.stringify([demoUser]));
+      }
+    }
+
+    // Page Load Setup
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      seedDefaultData();
+      updateCartBadge();
+      updateNavUser();
+      renderLands(sampleLands);
+    });
+  </script>
+</body>
+</html>

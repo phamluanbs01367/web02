@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <script>
+    (function() {
+      try {
+        var origFetch = window.fetch;
+        var currentFetch = origFetch;
+        Object.defineProperty(window, 'fetch', {
+          get: function() {
+            return currentFetch;
+          },
+          set: function(val) {
+            currentFetch = val;
+          },
+          configurable: true,
+          enumerable: true
+        });
+      } catch (e) {}
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart - TerraVista Land Management</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+
+    /* Tạo khoảng trống phía dưới cho menu xổ xuống trên điện thoại */
+    @media (max-width: 991px) {
+      #navbarMain .navbar-nav {
+        margin-bottom: 1rem !important; 
+      }
+    }
+    :root {
+      --primary-color: #0284c7;
+      --primary-hover: #0369a1;
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+
+    [data-bs-theme="dark"] {
+      --primary-color: #38bdf8;
+      --bg-light: #0f172a;
+      --card-bg: #1e293b;
+      --text-dark: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    /* Ép chữ Vista chuyển thành màu sáng (trắng) khi ở chế độ Dark Mode */
+    [data-bs-theme="dark"] .dark-text-light {
+      color: var(--text-dark) !important; 
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* --- ÉP MÀU NỀN ĐẶC (TRẮNG/TỐI) CHO THANH ĐIỀU HƯỚNG --- */
+    .navbar {
+      background-color: var(--card-bg) !important; /* QUAN TRỌNG: Đổ màu nền đặc (trắng ở Light Mode, đen ở Dark Mode) */
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      z-index: 1020 !important; /* Ép menu luôn nổi lên trên cùng, không bị hình ảnh đè lên */
+    }
+
+    .navbar-brand {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--primary-color) !important; /* Ép màu xanh chủ đạo */
+}
+
+    /* Căn giữa và tạo khoảng cách cho các khối menu */
+    .navbar-nav {
+      gap: 0.5rem;
+      align-items: center; /* QUAN TRỌNG: Ngăn các thẻ bị kéo giãn chiều dọc */
+    }
+
+    /* Thiết kế hình khối cho các thẻ menu */
+    .nav-link {
+      font-weight: 500;
+      color: var(--text-dark) !important;
+      padding: 0.4rem 1rem !important; /* Cân chỉnh lại độ dày trên/dưới cho gọn gàng hơn */
+      background-color: transparent; 
+      border: 1px solid var(--border-color); 
+      border-radius: 8px; /* Bo góc khối */
+      transition: all 0.3s ease; 
+      white-space: nowrap; /* QUAN TRỌNG: Ép chữ luôn nằm trên 1 dòng, không bị rớt chữ */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Hiệu ứng khi di chuột (hover) hoặc khi đang chọn (active) */
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary-color) !important; 
+      background-color: var(--bg-light); 
+      border-color: var(--primary-color); 
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
+    }
+
+    
+
+    .cart-item-img {
+      width: 90px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .cart-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      min-height: 380px; /* Khóa chiều cao tối thiểu để ép 2 khối bằng nhau tăm tắp */
+    }
+
+    .summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      position: sticky;
+      top: 90px;
+      min-height: 380px; /* Khóa chiều cao tối thiểu để ép 2 khối bằng nhau tăm tắp */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between; /* Đẩy các dòng giãn cách đều nhau cho đẹp mắt */
+    }
+
+    .future-dev-card {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: 16px;
+      padding: 2.5rem;
+      border: 1px solid #334155;
+    }
+
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 3rem 0 1.5rem;
+      margin-top: auto;
+    }
+
+    footer a {
+      color: #94a3b8;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #38bdf8;
+    }
+
+    /* --- ĐỒNG BỘ HÓA GIAO DIỆN CỤM NÚT BÊN PHẢI (THEME, CART, LOGIN) --- */
+    
+    /* 1. Xử lý nút Theme (Mặt trăng) */
+    #themeToggleBtn {
+      width: 40px !important;
+      height: 40px !important;
+      padding: 0 !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50% !important; /* Ép viền bo tròn tuyệt đối */
+      flex-shrink: 0; /* Ngăn chặn thuộc tính flexbox bóp méo hình dạng */
+      transition: all 0.3s ease;
+    }
+
+    /* 2. Xử lý định dạng khối cho nút Cart, Login và nút John */
+    .navbar .d-flex.align-items-center > a,
+    .navbar .d-flex.align-items-center > button:not(#themeToggleBtn),
+    .navbar .d-flex.align-items-center #userNavContainer a:not(.dropdown-item),
+    .navbar .d-flex.align-items-center #userNavContainer button:not(.dropdown-item) {
+      height: 40px !important; 
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px !important; 
+      padding: 0 1.25rem !important;
+      white-space: nowrap; 
+      flex-shrink: 0; 
+      transition: all 0.3s ease;
+    }
+
+    /* 3. Đồng bộ icon trong menu xổ xuống của tài khoản */
+    .dropdown-menu .dropdown-item {
+      padding: 0.5rem 1.25rem; /* Trả lại khoảng cách chuẩn cho menu */
+    }
+    
+    .dropdown-menu .dropdown-item i {
+      width: 24px;
+      text-align: center;
+      margin-right: 12px;
+    }
+
+    /* 3. Tinh chỉnh vị trí huy hiệu (Badge) đếm số lượng giỏ hàng */
+    #navCartBadge {
+      transform: translate(25%, -25%) !important; /* Kéo huy hiệu sát lại góc nút */
+      border: 2px solid var(--card-bg); /* Thêm viền trùng màu nền để tạo độ nổi 3D */
+    }
+
+
+
+
+
+    /* --- TỐI ƯU HÓA ĐỒNG BỘ MENU TRÊN ĐIỆN THOẠI & TABLET --- */
+    @media (max-width: 991px) {
+      /* 1. Ép toàn bộ danh sách menu ra chính giữa màn hình */
+      #navbarMain .navbar-nav {
+        align-items: center !important; 
+        margin-top: 1rem;
+        margin-bottom: 1.5rem !important;
+        width: 100%;
+      }
+      
+      /* 2. Trả lại kích thước khối menu vừa vặn với chữ */
+      #navbarMain .nav-link {
+        width: auto !important; /* Gỡ bỏ việc ép rộng 100% */
+        justify-content: center !important; 
+        padding: 0.4rem 1.5rem !important; /* Giữ khoảng cách 2 bên chữ rộng rãi dễ bấm chạm */
+      }
+
+      /* 3. Ép cụm nút tiện ích (Mặt trăng, Cart, Login) ra chính giữa */
+      #navbarMain .d-flex {
+        justify-content: center !important;
+        width: 100%;
+        margin-bottom: 1rem;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+      <i class="fa-solid fa-mountain-city text-primary fs-3"></i>
+      <span>Terra<span class="text-dark dark-text-light">Vista</span></span>
+    </a>
+      
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <i class="fa-solid fa-bars fs-4"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#categories">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#featured">Lands Catalog</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact Us</a></li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-secondary rounded-circle btn-sm p-2" id="themeToggleBtn" title="Toggle Theme">
+            <i class="fa-solid fa-moon" id="themeIcon"></i>
+          </button>
+
+          <a href="cart.html" class="btn btn-primary position-relative rounded-pill px-3 py-2 btn-sm fw-semibold">
+            <i class="fa-solid fa-cart-shopping me-1"></i> Cart
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-dark border border-secondary shadow-sm d-none" id="navCartBadge">0</span>
+          </a>
+
+          <div id="userNavContainer">
+            <a href="login.html" class="btn btn-outline-primary rounded-pill btn-sm px-3 py-2 fw-semibold">
+              <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Cart Section -->
+  <main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-bold mb-1">Land Reservation Cart</h2>
+        <p class="text-muted small mb-0">Review selected land parcels before executing title conveyance</p>
+      </div>
+      <button onclick="clearCart()" class="btn btn-outline-danger btn-sm rounded-pill px-3" id="clearCartBtn">
+        <i class="fa-solid fa-trash me-1"></i> Clear Cart
+      </button>
+    </div>
+
+    <div class="row g-4">
+      <!-- Cart Items List Column -->
+      <div class="col-lg-8">
+        <div class="cart-card" id="cartItemsContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Order Summary Column -->
+      <div class="col-lg-4">
+        <div class="summary-card">
+          <h4 class="fw-bold mb-3">Reservation Summary</h4>
+          
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Selected Plots:</span>
+            <span class="fw-semibold" id="sumPlotsCount">0</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Land Subtotal:</span>
+            <span class="fw-semibold" id="sumSubtotal">$0</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+            <span class="text-muted">Legal Conveyance and Title Fee (2%):</span>
+            <span class="fw-semibold text-success" id="sumLegalFee">$0</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-4">
+            <span class="fw-bold fs-5">Total Deposit Due:</span>
+            <span class="fw-bold fs-5 text-primary" id="sumTotal">$0</span>
+          </div>
+
+          <button onclick="triggerCheckout()" id="checkoutBtn" class="btn btn-primary w-100 rounded-pill py-2.5 fw-semibold mb-3">
+            <i class="fa-solid fa-file-signature me-2"></i> Proceed to Land Reservation
+          </button>
+
+          <div class="small text-muted text-center">
+            <i class="fa-solid fa-shield-halved text-success me-1"></i> 100% Freehold Title Guarantee
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Checkout / Conveyance Modal -->
+  <div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header bg-primary text-white p-4">
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-stamp me-2"></i> Complete Escrow Land Reservation</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="checkoutForm" onsubmit="processCheckout(event)">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Buyer Full Name</label>
+                <input type="text" id="chkName" class="form-control" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Email Address</label>
+                <input type="email" id="chkEmail" class="form-control" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Phone Number</label>
+                <input type="tel" id="chkPhone" class="form-control" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small">Preferred Payment Option</label>
+                <select id="chkPayment" class="form-select">
+                  <option value="Direct Bank Wire Transfer">Direct Bank Wire Transfer</option>
+                  <option value="12-Month Installment Plan">12-Month Installment Plan</option>
+                  <option value="Escrow Deposit Holding">Escrow Deposit Holding</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <div class="p-3 bg-body-tertiary rounded-3 border">
+                  <div class="fw-bold small mb-1"><i class="fa-solid fa-circle-info text-primary me-1"></i> Secure Escrow Notice</div>
+                  <small class="text-muted">Your transaction is secured via our Escrow holding system. The deposit will be held securely until the final title deed conveyance is legally verified by regional authorities.</small>
+                </div>
+              </div>
+
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-primary w-100 rounded-pill py-2.5 fw-semibold">
+                  <i class="fa-solid fa-check-circle me-2"></i> Confirm Reservation & Generate Receipt
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Receipt Confirmation Modal -->
+  <div class="modal fade" id="receiptModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 text-center p-4">
+        <div class="text-success fs-1 mb-2">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h4 class="fw-bold mb-2">Land Reservation Confirmed!</h4>
+        <p class="text-muted small mb-3">Your land plot deposit receipt has been recorded. You can view all title details inside your user profile dashboard.</p>
+        
+        <div class="p-3 bg-body-tertiary rounded-3 text-start small mb-4" id="receiptSummaryContent">
+          <!-- Filled dynamically -->
+        </div>
+
+        <div class="d-flex gap-2">
+          <a href="profile.html" class="btn btn-primary w-100 rounded-pill fw-semibold">Go to My Profile</a>
+          <a href="index.html" class="btn btn-outline-secondary w-100 rounded-pill fw-semibold">Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container text-center small">
+      <p class="mb-2">&copy; 2026 TerraVista Commercial Real Estate | All Rights Reserved</p>
+      <div class="d-flex justify-content-center gap-3 text-muted">
+        <a href="index.html">Home</a>
+        <a href="contact.html">Contact</a>
+        <a href="profile.html">Profile</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;" id="toastContainer"></div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function getCart() {
+      return JSON.parse(localStorage.getItem('landCart')) || [];
+    }
+
+    function setCart(cart) {
+      localStorage.setItem('landCart', JSON.stringify(cart));
+      updateCartBadge();
+      renderCart();
+    }
+
+    function getCurrentUser() {
+      return JSON.parse(localStorage.getItem('currentUser')) || null;
+    }
+
+    function updateCartBadge() {
+  const cart = getCart();
+  const count = cart.reduce((total, item) => total + (item.qty || 1), 0);
+
+  // Xử lý huy hiệu (badge) trên thanh Menu
+  const navBadge = document.getElementById('navCartBadge');
+  if (navBadge) {
+    navBadge.innerText = count;
+    // Nếu không có sản phẩm (count = 0) thì thêm class d-none để ẩn đi, ngược lại thì gỡ d-none để hiện ra
+    if (count === 0) {
+      navBadge.classList.add('d-none');
+    } else {
+      navBadge.classList.remove('d-none');
+    }
+  }
+
+  // Xử lý huy hiệu (badge) ở nút Giỏ hàng trôi nổi (dành riêng cho file index.html)
+  const floatingBadge = document.getElementById('floatingCartBadge');
+  if (floatingBadge) {
+    floatingBadge.innerText = count;
+    if (count === 0) {
+      floatingBadge.style.display = 'none';
+    } else {
+      floatingBadge.style.display = 'flex';
+      // Đổi màu nền trắng - chữ đen cho nút trôi nổi
+      floatingBadge.style.background = '#ffffff';
+      floatingBadge.style.color = '#000000';
+      floatingBadge.style.border = '1px solid #ccc';
+    }
+  }
+}
+
+    function updateNavUser() {
+      const user = getCurrentUser();
+      const container = document.getElementById('userNavContainer');
+      if (user) {
+        container.innerHTML = `
+          <div class="dropdown">
+            <button class="btn btn-outline-primary rounded-pill btn-sm dropdown-toggle fw-semibold px-3 py-2" type="button" data-bs-toggle="dropdown">
+              <i class="fa-solid fa-user-circle me-1"></i> ${user.name.split(' ')[0]}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+              <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-id-card me-2 text-primary"></i> My Profile</a></li>
+              <li><a class="dropdown-item text-danger" href="#" onclick="logoutUser()"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
+            </ul>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <a href="login.html" class="btn btn-outline-primary rounded-pill btn-sm px-3 py-2 fw-semibold">
+            <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+          </a>
+        `;
+      }
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('currentUser');
+      showToast("Logged out successfully", "info");
+      updateNavUser();
+    }
+
+    function showToast(message, type = 'success') {
+      const toastContainer = document.getElementById('toastContainer');
+      const toastId = 'toast-' + Date.now();
+      const bgClass = type === 'success' ? 'bg-success text-white' : 'bg-primary text-white';
+
+      const html = `
+        <div id="${toastId}" class="toast align-items-center ${bgClass} border-0 shadow-lg rounded-3 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body fw-medium">
+              <i class="fa-solid fa-circle-check me-2"></i> ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      `;
+      toastContainer.insertAdjacentHTML('beforeend', html);
+      const toastElement = document.getElementById(toastId);
+      const bsToast = new bootstrap.Toast(toastElement, { delay: 3500 });
+      bsToast.show();
+      toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
+    }
+
+    // Render Cart Items & Summary
+    function renderCart() {
+      const cart = getCart();
+      const container = document.getElementById('cartItemsContainer');
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-5">
+            <i class="fa-solid fa-cart-arrow-down text-muted fs-1 mb-3"></i>
+            <h4 class="fw-bold">Your Land Cart is Empty</h4>
+            <p class="text-muted small mb-4">You have not selected any land plots for reservation yet.</p>
+            <a href="index.html#featured" class="btn btn-primary rounded-pill px-4 fw-semibold">
+              <i class="fa-solid fa-compass me-2"></i> Browse Lands Catalog
+            </a>
+          </div>
+        `;
+        document.getElementById('sumPlotsCount').innerText = '0';
+        document.getElementById('sumSubtotal').innerText = '$0';
+        document.getElementById('sumLegalFee').innerText = '$0';
+        document.getElementById('sumTotal').innerText = '$0';
+        document.getElementById('checkoutBtn').disabled = true;
+        document.getElementById('clearCartBtn').disabled = true;
+        return;
+      }
+
+      document.getElementById('checkoutBtn').disabled = false;
+      document.getElementById('clearCartBtn').disabled = false;
+
+      let subtotal = 0;
+      let totalPlots = 0;
+
+      container.innerHTML = cart.map(item => {
+        const itemQty = item.qty || 1;
+        const itemSubtotal = item.price * itemQty;
+        subtotal += itemSubtotal;
+        totalPlots += itemQty;
+
+        return `
+          <div class="d-flex flex-wrap align-items-center justify-content-between p-3 mb-3 border rounded-3 bg-body-tertiary gap-3">
+            <div class="d-flex align-items-center gap-3">
+              <img src="${item.image}" alt="${item.title}" class="cart-item-img">
+              <div>
+                <h6 class="fw-bold mb-1">${item.title}</h6>
+                <small class="text-muted d-block"><i class="fa-solid fa-location-dot me-1 text-danger"></i> ${item.location}</small>
+                <small class="text-primary fw-semibold"><i class="fa-solid fa-ruler-combined me-1"></i> ${item.area}</small>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 ms-auto">
+              <div class="d-flex align-items-center border rounded-pill bg-white px-2 py-1">
+                <button onclick="updateQty('${item.id}', -1)" class="btn btn-sm btn-link text-dark p-1 text-decoration-none"><i class="fa-solid fa-minus fs-7"></i></button>
+                <span class="fw-bold px-2 small">${itemQty}</span>
+                <button onclick="updateQty('${item.id}', 1)" class="btn btn-sm btn-link text-dark p-1 text-decoration-none"><i class="fa-solid fa-plus fs-7"></i></button>
+              </div>
+
+              <div class="text-end" style="min-width: 100px;">
+                <div class="fw-bold text-primary">$${itemSubtotal.toLocaleString()}</div>
+                <small class="text-muted">$${item.price.toLocaleString()} / plot</small>
+              </div>
+
+              <button onclick="removeItem('${item.id}')" class="btn btn-outline-danger btn-sm rounded-circle p-2" title="Remove Item">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const legalFee = Math.round(subtotal * 0.02);
+      const total = subtotal + legalFee;
+
+      document.getElementById('sumPlotsCount').innerText = totalPlots;
+      document.getElementById('sumSubtotal').innerText = '$' + subtotal.toLocaleString();
+      document.getElementById('sumLegalFee').innerText = '$' + legalFee.toLocaleString();
+      document.getElementById('sumTotal').innerText = '$' + total.toLocaleString();
+    }
+
+    function updateQty(id, delta) {
+      let cart = getCart();
+      const item = cart.find(i => i.id === id);
+      if (item) {
+        item.qty = (item.qty || 1) + delta;
+        if (item.qty <= 0) {
+          cart = cart.filter(i => i.id !== id);
+        }
+        setCart(cart);
+      }
+    }
+
+    function removeItem(id) {
+      let cart = getCart();
+      cart = cart.filter(i => i.id !== id);
+      setCart(cart);
+      showToast("Item removed from reservation cart", "info");
+    }
+
+    function clearCart() {
+      if (confirm("Are you sure you want to remove all plots from your cart?")) {
+        setCart([]);
+        showToast("Cart cleared", "info");
+      }
+    }
+
+    function triggerCheckout() {
+      const user = getCurrentUser();
+      if (user) {
+        document.getElementById('chkName').value = user.name || '';
+        document.getElementById('chkEmail').value = user.email || '';
+        document.getElementById('chkPhone').value = user.phone || '';
+      }
+      const modal = new bootstrap.Modal(document.getElementById('checkoutModal'));
+      modal.show();
+    }
+
+    function processCheckout(event) {
+      event.preventDefault();
+      const cart = getCart();
+      if (cart.length === 0) return;
+
+      const user = getCurrentUser();
+      const buyerName = document.getElementById('chkName').value;
+      const buyerEmail = document.getElementById('chkEmail').value;
+
+      let subtotal = cart.reduce((tot, i) => tot + (i.price * (i.qty || 1)), 0);
+      let legalFee = Math.round(subtotal * 0.02);
+      let total = subtotal + legalFee;
+
+      const orderObj = {
+        orderId: 'RES-' + Math.floor(100000 + Math.random() * 900000),
+        date: new Date().toISOString(),
+        buyerName: buyerName,
+        buyerEmail: buyerEmail,
+        items: cart,
+        total: total
+      };
+
+      // Save order to userOrders in localStorage
+      const userOrders = JSON.parse(localStorage.getItem('userOrders')) || [];
+      userOrders.push(orderObj);
+      localStorage.setItem('userOrders', JSON.stringify(userOrders));
+
+      // Clear Cart
+      setCart([]);
+
+      // Hide Checkout Modal and Show Receipt Modal
+      bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
+
+      document.getElementById('receiptSummaryContent').innerHTML = `
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">Receipt Number:</span>
+          <strong>${orderObj.orderId}</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">Buyer Name:</span>
+          <strong>${buyerName}</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">Reserved Parcels:</span>
+          <strong>${orderObj.items.length} land plots</strong>
+        </div>
+        <div class="d-flex justify-content-between border-top pt-2 mt-2">
+          <span class="text-muted">Total Deposit Recorded:</span>
+          <strong class="text-primary fs-6">$${total.toLocaleString()}</strong>
+        </div>
+      `;
+
+      const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
+      receiptModal.show();
+    }
+
+    // Theme Switcher Logic
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-bs-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('themeIcon');
+      if (theme === 'dark') {
+        icon.className = 'fa-solid fa-sun text-warning';
+      } else {
+        icon.className = 'fa-solid fa-moon';
+      }
+    }
+
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-bs-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-bs-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeIcon(next);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      updateCartBadge();
+      updateNavUser();
+      renderCart();
+    });
+  </script>
+</body>
+</html>

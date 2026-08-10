@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <script>
+    (function() {
+      try {
+        var origFetch = window.fetch;
+        var currentFetch = origFetch;
+        Object.defineProperty(window, 'fetch', {
+          get: function() {
+            return currentFetch;
+          },
+          set: function(val) {
+            currentFetch = val;
+          },
+          configurable: true,
+          enumerable: true
+        });
+      } catch (e) {}
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile - TerraVista Land Management</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    :root {
+      --primary-color: #0284c7;
+      --primary-hover: #0369a1;
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+
+    [data-bs-theme="dark"] {
+      --primary-color: #38bdf8;
+      --bg-light: #0f172a;
+      --card-bg: #1e293b;
+      --text-dark: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    /* Ép chữ Vista chuyển thành màu sáng (trắng) khi ở chế độ Dark Mode */
+    [data-bs-theme="dark"] .dark-text-light {
+      color: var(--text-dark) !important; 
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Navbar Styling */
+    .navbar {
+      background-color: var(--card-bg) !important;
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .navbar-brand {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--primary-color) !important;
+    }
+
+    /* Căn giữa và tạo khoảng cách cho các khối menu */
+    .navbar-nav {
+      gap: 0.5rem;
+      align-items: center; /* QUAN TRỌNG: Ngăn các thẻ bị kéo giãn chiều dọc */
+    }
+
+    /* Thiết kế hình khối cho các thẻ menu */
+    .nav-link {
+      font-weight: 500;
+      color: var(--text-dark) !important;
+      padding: 0.4rem 1rem !important; /* Cân chỉnh lại độ dày trên/dưới cho gọn gàng hơn */
+      background-color: transparent; 
+      border: 1px solid var(--border-color); 
+      border-radius: 8px; /* Bo góc khối */
+      transition: all 0.3s ease; 
+      white-space: nowrap; /* QUAN TRỌNG: Ép chữ luôn nằm trên 1 dòng, không bị rớt chữ */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Hiệu ứng khi di chuột (hover) hoặc khi đang chọn (active) */
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary-color) !important; 
+      background-color: var(--bg-light); 
+      border-color: var(--primary-color); 
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
+    }
+
+    .profile-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      
+      /* --- THÊM 3 DÒNG DƯỚI ĐÂY VÀO --- */
+      height: 100%; /* Ép khối luôn dài 100% theo chiều cao của cột */
+      display: flex; /* Bật Flexbox để quản lý nội dung bên trong */
+      flex-direction: column; /* Xếp nội dung theo chiều dọc */
+    }
+
+    .avatar-circle {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-color), #0f172a);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.25rem;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(2, 132, 199, 0.25);
+    }
+
+    .nav-tabs .nav-link {
+      color: var(--text-muted) !important;
+      font-weight: 600;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 0.75rem 1.25rem;
+    }
+
+    .nav-tabs .nav-link.active {
+      color: var(--primary-color) !important;
+      border-bottom-color: var(--primary-color);
+      background: transparent;
+    }
+
+    .future-dev-card {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: 16px;
+      padding: 2.5rem;
+      border: 1px solid #334155;
+    }
+
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 3rem 0 1.5rem;
+      margin-top: auto;
+    }
+
+    footer a {
+      color: #94a3b8;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #38bdf8;
+    }
+
+    /* --- ĐỒNG BỘ HÓA GIAO DIỆN CỤM NÚT BÊN PHẢI (THEME, CART, LOGIN) --- */
+    
+    /* 1. Xử lý nút Theme (Mặt trăng) */
+    #themeToggleBtn {
+      width: 40px !important;
+      height: 40px !important;
+      padding: 0 !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50% !important; /* Ép viền bo tròn tuyệt đối */
+      flex-shrink: 0; /* Ngăn chặn thuộc tính flexbox bóp méo hình dạng */
+      transition: all 0.3s ease;
+    }
+
+    /* 2. Xử lý định dạng khối cho nút Cart, Login và nút John */
+    .navbar .d-flex.align-items-center > a,
+    .navbar .d-flex.align-items-center > button:not(#themeToggleBtn),
+    .navbar .d-flex.align-items-center #userNavContainer a:not(.dropdown-item),
+    .navbar .d-flex.align-items-center #userNavContainer button:not(.dropdown-item) {
+      height: 40px !important; 
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px !important; 
+      padding: 0 1.25rem !important;
+      white-space: nowrap; 
+      flex-shrink: 0; 
+      transition: all 0.3s ease;
+    }
+
+    /* 3. Đồng bộ icon trong menu xổ xuống của tài khoản */
+    .dropdown-menu .dropdown-item {
+      padding: 0.5rem 1.25rem; /* Trả lại khoảng cách chuẩn cho menu */
+    }
+    
+    .dropdown-menu .dropdown-item i {
+      width: 24px;
+      text-align: center;
+      margin-right: 12px;
+    }
+
+    /* 3. Tinh chỉnh vị trí huy hiệu (Badge) đếm số lượng giỏ hàng */
+    /* Tinh chỉnh vị trí huy hiệu Giỏ hàng để không đè lên nút Login */
+    #navCartBadge {
+      position: absolute !important;
+      top: -6px !important;       /* Hơi nhô lên trên viền một chút */
+      right: -6px !important;     /* Neo sát vào góc phải, ngăn tràn sang nút kế bên */
+      left: auto !important;      /* Vô hiệu hóa class start-100 của Bootstrap */
+      transform: none !important; /* Vô hiệu hóa class translate-middle của Bootstrap */
+      z-index: 10;                /* Đảm bảo huy hiệu luôn nổi bật trên cùng */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="fa-solid fa-mountain-city text-primary fs-3"></i>
+        <span>Terra<span class="text-dark dark-text-light">Vista</span></span>
+      </a>
+      
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <i class="fa-solid fa-bars fs-4"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#categories">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#featured">Lands Catalog</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact Us</a></li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-secondary rounded-circle btn-sm p-2" id="themeToggleBtn" title="Toggle Theme">
+            <i class="fa-solid fa-moon" id="themeIcon"></i>
+          </button>
+
+          <a href="cart.html" class="btn btn-outline-primary position-relative rounded-pill px-3 py-2 btn-sm fw-semibold">
+            <i class="fa-solid fa-cart-shopping me-1"></i> Cart
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-dark border border-secondary shadow-sm d-none" id="navCartBadge">0</span>
+          </a>
+
+          <button onclick="logoutUser()" class="btn btn-outline-danger rounded-pill btn-sm px-3 py-2 fw-semibold">
+            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Profile Content Container -->
+  <main class="container py-5">
+    
+    <!-- Non-Logged In State Alert -->
+    <div id="guestAlertState" class="d-none text-center py-5">
+      <div class="profile-card max-w-lg mx-auto py-5 px-4" style="max-width: 520px;">
+        <i class="fa-solid fa-user-lock text-muted fs-1 mb-3"></i>
+        <h3 class="fw-bold">Login Required</h3>
+        <p class="text-muted small mb-4">Please log in or register an account to view your user profile dashboard, land reservations, and saved favorite plots.</p>
+        <div class="d-flex justify-content-center gap-3">
+          <a href="login.html" class="btn btn-primary rounded-pill px-4 fw-semibold">Log In Now</a>
+          <a href="register.html" class="btn btn-outline-primary rounded-pill px-4 fw-semibold">Register Account</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logged In User Profile Dashboard -->
+    <div id="userProfileState" class="d-none">
+      <div class="row g-4 mb-4">
+        <!-- Sidebar User Overview -->
+        <div class="col-lg-4">
+          <div class="profile-card text-center">
+            <div class="avatar-circle mx-auto mb-3" id="profileAvatar">JD</div>
+            <h4 class="fw-bold mb-1" id="profileDisplayName">John Doe</h4>
+            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 fw-semibold mb-3">
+              <i class="fa-solid fa-shield-check me-1"></i> Verified Land Buyer
+            </span>
+
+            <div class="text-start border-top pt-3 mt-2 small">
+              <div class="mb-2">
+                <span class="text-muted d-block">Email Address:</span>
+                <strong id="profileDisplayEmail">john.doe@example.com</strong>
+              </div>
+              <div class="mb-2">
+                <span class="text-muted d-block">Phone Contact:</span>
+                <strong id="profileDisplayPhone">+1 (555) 019-2831</strong>
+              </div>
+              <div class="mb-2">
+                <span class="text-muted d-block">Physical Address:</span>
+                <strong id="profileDisplayAddress">123 Oakridge Way, Grand Valley</strong>
+              </div>
+              <div>
+                <span class="text-muted d-block">Member Since:</span>
+                <strong id="profileDisplayDate">August 2026</strong>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <button onclick="logoutUser()" class="btn btn-danger w-100 rounded-pill py-2 fw-semibold">
+              <i class="fa-solid fa-right-from-bracket me-2"></i> Log Out
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Dashboard Tabs -->
+        <div class="col-lg-8">
+          <div class="profile-card">
+            <ul class="nav nav-tabs mb-4" id="profileTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="edit-tab" data-bs-toggle="tab" data-bs-target="#editPane" type="button" role="tab">
+                  <i class="fa-solid fa-user-gear me-2"></i> Edit Account
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#ordersPane" type="button" role="tab">
+                  <i class="fa-solid fa-file-invoice-dollar me-2"></i> My Land Orders (<span id="ordersCount">0</span>)
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="favs-tab" data-bs-toggle="tab" data-bs-target="#favsPane" type="button" role="tab">
+                  <i class="fa-solid fa-heart me-2"></i> Saved Favorites (<span id="favsCount">0</span>)
+                </button>
+              </li>
+            </ul>
+
+            <div class="tab-content" id="profileTabContent">
+              
+              <!-- Tab 1: Edit Profile -->
+              <div class="tab-pane fade show active" id="editPane" role="tabpanel">
+                <h5 class="fw-bold mb-3">Update Profile Information</h5>
+                <form id="editProfileForm" onsubmit="handleProfileUpdate(event)">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold small">Full Name</label>
+                      <input type="text" id="editName" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold small">Email Address (Read-only)</label>
+                      <input type="email" id="editEmail" class="form-control" readonly disabled>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold small">Phone Number</label>
+                      <input type="tel" id="editPhone" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label fw-semibold small">Physical Address</label>
+                      <input type="text" id="editAddress" class="form-control" required>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                      <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> Save Profile Changes
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Tab 2: Land Reservation & Orders History -->
+              <div class="tab-pane fade" id="ordersPane" role="tabpanel">
+                <h5 class="fw-bold mb-3">Land Reservation Receipts & Orders</h5>
+                <div id="ordersContainer">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- Tab 3: Saved Favorites -->
+              <div class="tab-pane fade" id="favsPane" role="tabpanel">
+                <h5 class="fw-bold mb-3">Your Bookmarked Land Plots</h5>
+                <div class="row g-3" id="favoritesContainer">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container text-center small">
+      <p class="mb-2">&copy; 2026 TerraVista Commercial Real Estate | All Rights Reserved</p>
+      <div class="d-flex justify-content-center gap-3 text-muted">
+        <a href="index.html">Home</a>
+        <a href="contact.html">Contact</a>
+        <a href="cart.html">Cart</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;" id="toastContainer"></div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const sampleLands = [
+      {
+        id: "land-001",
+        title: "Oakridge Valley Estate - Lot 4B",
+        price: 125000,
+        area: "2.5 Acres",
+        location: "Grand Valley, Hillside District",
+        image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: "land-002",
+        title: "Harbor Light Commercial Hub - Parcel 12",
+        price: 385000,
+        area: "1.8 Acres",
+        location: "Sunset Bay, Business District",
+        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: "land-003",
+        title: "Green Pastures Agricultural Plot - Section 8",
+        price: 85000,
+        area: "12.0 Acres",
+        location: "Emerald Hills, Rural Sector",
+        image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: "land-004",
+        title: "Whispering Pines Waterfront Plot - Shoreline 3",
+        price: 245000,
+        area: "3.2 Acres",
+        location: "Riverfront Reserve, Lake District",
+        image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: "land-005",
+        title: "Metro Logistics Industrial Park - Lot 9",
+        price: 490000,
+        area: "5.5 Acres",
+        location: "Metro North, Industrial Belt",
+        image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: "land-006",
+        title: "Summit View Crest Lot - Plot 22",
+        price: 165000,
+        area: "1.2 Acres",
+        location: "Grand Valley, Crest Heights",
+        image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80"
+      }
+    ];
+
+    function getCart() {
+      return JSON.parse(localStorage.getItem('landCart')) || [];
+    }
+
+    function getCurrentUser() {
+      return JSON.parse(localStorage.getItem('currentUser')) || null;
+    }
+
+    function updateCartBadge() {
+  const cart = getCart();
+  const count = cart.reduce((total, item) => total + (item.qty || 1), 0);
+
+  // Xử lý huy hiệu (badge) trên thanh Menu
+  const navBadge = document.getElementById('navCartBadge');
+  if (navBadge) {
+    navBadge.innerText = count;
+    // Nếu không có sản phẩm (count = 0) thì thêm class d-none để ẩn đi, ngược lại thì gỡ d-none để hiện ra
+    if (count === 0) {
+      navBadge.classList.add('d-none');
+    } else {
+      navBadge.classList.remove('d-none');
+    }
+  }
+
+  // Xử lý huy hiệu (badge) ở nút Giỏ hàng trôi nổi (dành riêng cho file index.html)
+  const floatingBadge = document.getElementById('floatingCartBadge');
+  if (floatingBadge) {
+    floatingBadge.innerText = count;
+    if (count === 0) {
+      floatingBadge.style.display = 'none';
+    } else {
+      floatingBadge.style.display = 'flex';
+      // Đổi màu nền trắng - chữ đen cho nút trôi nổi
+      floatingBadge.style.background = '#ffffff';
+      floatingBadge.style.color = '#000000';
+      floatingBadge.style.border = '1px solid #ccc';
+    }
+  }
+}
+
+    function logoutUser() {
+      localStorage.removeItem('currentUser');
+      showToast("Logged out successfully", "info");
+      setTimeout(() => window.location.href = "index.html", 1000);
+    }
+
+    function showToast(message, type = 'success') {
+      const toastContainer = document.getElementById('toastContainer');
+      const toastId = 'toast-' + Date.now();
+      const bgClass = type === 'success' ? 'bg-success text-white' : 'bg-primary text-white';
+
+      const html = `
+        <div id="${toastId}" class="toast align-items-center ${bgClass} border-0 shadow-lg rounded-3 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body fw-medium">
+              <i class="fa-solid fa-circle-check me-2"></i> ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      `;
+      toastContainer.insertAdjacentHTML('beforeend', html);
+      const toastElement = document.getElementById(toastId);
+      const bsToast = new bootstrap.Toast(toastElement, { delay: 3500 });
+      bsToast.show();
+      toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
+    }
+
+    // Render User Dashboard
+    function renderProfile() {
+      const user = getCurrentUser();
+      const guestState = document.getElementById('guestAlertState');
+      const userState = document.getElementById('userProfileState');
+
+      if (!user) {
+        guestState.classList.remove('d-none');
+        userState.classList.add('d-none');
+        return;
+      }
+
+      guestState.classList.add('d-none');
+      userState.classList.remove('d-none');
+
+      // Populate User Overview
+      const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+      document.getElementById('profileAvatar').innerText = initials || "U";
+      document.getElementById('profileDisplayName').innerText = user.name;
+      document.getElementById('profileDisplayEmail').innerText = user.email;
+      document.getElementById('profileDisplayPhone').innerText = user.phone;
+      document.getElementById('profileDisplayAddress').innerText = user.address;
+      
+      const regDate = user.registeredAt ? new Date(user.registeredAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'August 2026';
+      document.getElementById('profileDisplayDate').innerText = regDate;
+
+      // Populate Edit Form
+      document.getElementById('editName').value = user.name;
+      document.getElementById('editEmail').value = user.email;
+      document.getElementById('editPhone').value = user.phone;
+      document.getElementById('editAddress').value = user.address;
+
+      renderOrders();
+      renderFavorites();
+    }
+
+    // Edit Profile Submission
+    function handleProfileUpdate(event) {
+      event.preventDefault();
+      let user = getCurrentUser();
+      if (!user) return;
+
+      const newName = document.getElementById('editName').value.trim();
+      const newPhone = document.getElementById('editPhone').value.trim();
+      const newAddress = document.getElementById('editAddress').value.trim();
+
+      user.name = newName;
+      user.phone = newPhone;
+      user.address = newAddress;
+
+      // Update in currentUser
+      localStorage.setItem('currentUser', JSON.stringify(user));
+
+      // Update in registeredUsers array
+      let registered = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+      registered = registered.map(u => u.email === user.email ? user : u);
+      localStorage.setItem('registeredUsers', JSON.stringify(registered));
+
+      showToast("Profile updated successfully!", "success");
+      renderProfile();
+    }
+
+    // Render Orders / Reservation History
+    function renderOrders() {
+      const userOrders = JSON.parse(localStorage.getItem('userOrders')) || [];
+      const ordersContainer = document.getElementById('ordersContainer');
+      document.getElementById('ordersCount').innerText = userOrders.length;
+
+      if (userOrders.length === 0) {
+        ordersContainer.innerHTML = `
+          <div class="text-center py-4 text-muted">
+            <i class="fa-solid fa-receipt fs-2 mb-2 d-block"></i>
+            <p class="small mb-0">No land reservations recorded yet.</p>
+            <a href="index.html#featured" class="btn btn-sm btn-outline-primary rounded-pill mt-2">Explore Lands Catalog</a>
+          </div>
+        `;
+        return;
+      }
+
+      ordersContainer.innerHTML = userOrders.map(order => `
+        <div class="card border rounded-3 p-3 mb-3 shadow-sm">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold text-primary">Reservation #${order.orderId}</span>
+            <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1">Confirmed Title Deed</span>
+          </div>
+          <div class="small text-muted mb-2">Reserved on: ${new Date(order.date).toLocaleDateString()}</div>
+          <div class="border-top pt-2 mt-2">
+            ${order.items.map(item => `
+              <div class="d-flex justify-content-between align-items-center mb-1 small">
+                <span><strong>${item.title}</strong> (${item.area}) x${item.qty || 1}</span>
+                <span>$${(item.price * (item.qty || 1)).toLocaleString()}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="d-flex justify-content-between align-items-center border-top pt-2 mt-2 fw-bold">
+            <span>Total Deposit Paid:</span>
+            <span class="text-primary">$${order.total.toLocaleString()}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render Saved Favorites
+    function renderFavorites() {
+      const favIds = JSON.parse(localStorage.getItem('userFavorites')) || [];
+      const favsContainer = document.getElementById('favoritesContainer');
+      document.getElementById('favsCount').innerText = favIds.length;
+
+      const favLands = sampleLands.filter(l => favIds.includes(l.id));
+
+      if (favLands.length === 0) {
+        favsContainer.innerHTML = `
+          <div class="col-12 text-center py-4 text-muted">
+            <i class="fa-solid fa-heart-crack fs-2 mb-2 d-block"></i>
+            <p class="small mb-0">You have not bookmarked any favorite land plots.</p>
+          </div>
+        `;
+        return;
+      }
+
+      favsContainer.innerHTML = favLands.map(land => `
+        <div class="col-md-6">
+          <div class="border rounded-3 p-3 d-flex gap-3 align-items-center shadow-sm bg-body-tertiary">
+            <img src="${land.image}" alt="${land.title}" class="rounded-3" width="70" height="70" style="object-fit: cover;">
+            <div class="overflow-hidden flex-grow-1">
+              <h6 class="fw-bold mb-0 text-truncate">${land.title}</h6>
+              <div class="text-primary fw-bold small">$${land.price.toLocaleString()}</div>
+              <small class="text-muted d-block">${land.area}</small>
+            </div>
+            <button onclick="removeFavorite('${land.id}')" class="btn btn-outline-danger btn-sm rounded-circle p-2" title="Remove">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function removeFavorite(id) {
+      let favs = JSON.parse(localStorage.getItem('userFavorites')) || [];
+      favs = favs.filter(fId => fId !== id);
+      localStorage.setItem('userFavorites', JSON.stringify(favs));
+      showToast("Removed from favorites", "info");
+      renderFavorites();
+    }
+
+    // Theme Switcher Logic
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-bs-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('themeIcon');
+      if (theme === 'dark') {
+        icon.className = 'fa-solid fa-sun text-warning';
+      } else {
+        icon.className = 'fa-solid fa-moon';
+      }
+    }
+
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-bs-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-bs-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeIcon(next);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      updateCartBadge();
+      renderProfile();
+    });
+  </script>
+</body>
+</html>

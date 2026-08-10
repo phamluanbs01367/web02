@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <script>
+    (function() {
+      try {
+        var origFetch = window.fetch;
+        var currentFetch = origFetch;
+        Object.defineProperty(window, 'fetch', {
+          get: function() {
+            return currentFetch;
+          },
+          set: function(val) {
+            currentFetch = val;
+          },
+          configurable: true,
+          enumerable: true
+        });
+      } catch (e) {}
+    })();
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - TerraVista Land Management</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+  
+
+    /* Tạo khoảng trống phía dưới cho menu xổ xuống trên điện thoại */
+    @media (max-width: 991px) {
+      #navbarMain .navbar-nav {
+        margin-bottom: 1rem !important; 
+      }
+    }
+    :root {
+      --primary-color: #0284c7;
+      --primary-hover: #0369a1;
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+
+    [data-bs-theme="dark"] {
+      --primary-color: #38bdf8;
+      --bg-light: #0f172a;
+      --card-bg: #1e293b;
+      --text-dark: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    /* Ép chữ Vista chuyển thành màu sáng (trắng) khi ở chế độ Dark Mode */
+    [data-bs-theme="dark"] .dark-text-light {
+      color: var(--text-dark) !important; 
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      transition: background-color 0.3s ease;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .navbar-brand {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--primary-color) !important;
+    }
+
+
+    /* --- ÉP MÀU NỀN ĐẶC (TRẮNG/TỐI) CHO THANH ĐIỀU HƯỚNG --- */
+    .navbar {
+      background-color: var(--card-bg) !important; /* QUAN TRỌNG: Đổ màu nền đặc (trắng ở Light Mode, đen ở Dark Mode) */
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      z-index: 1020 !important; /* Ép menu luôn nổi lên trên cùng, không bị hình ảnh đè lên */
+    }
+
+    /* Căn giữa và tạo khoảng cách cho các khối menu */
+    .navbar-nav {
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    /* --- ÉP MÀU NỀN ĐẶC CHO TỪNG KHỐI MENU --- */
+    .nav-link {
+      font-weight: 500;
+      color: var(--text-dark) !important;
+      padding: 0.4rem 1rem !important; 
+      background-color: var(--card-bg) !important; /* QUAN TRỌNG: Đổi từ transparent thành màu nền đặc để chữ không bao giờ bị chìm */
+      border: 1px solid var(--border-color); 
+      border-radius: 8px; 
+      transition: all 0.3s ease; 
+      white-space: nowrap; 
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Hiệu ứng khi di chuột hoặc đang chọn */
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary-color) !important; 
+      background-color: var(--bg-light) !important; 
+      border-color: var(--primary-color); 
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
+    }
+    
+    .page-header {
+      background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)), 
+                  url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&q=80') center/cover;
+      color: #ffffff;
+      padding: 70px 0;
+    }
+
+    .contact-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .info-icon-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: rgba(2, 132, 199, 0.1);
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .map-container {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      height: 380px;
+    }
+
+    .future-dev-card {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: 16px;
+      padding: 2.5rem;
+      border: 1px solid #334155;
+    }
+
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 4rem 0 2rem;
+    }
+
+    footer h5 {
+      color: #ffffff;
+    }
+
+    footer a {
+      color: #94a3b8;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #38bdf8;
+    }
+
+    /* --- ĐỒNG BỘ HÓA GIAO DIỆN CỤM NÚT BÊN PHẢI (THEME, CART, LOGIN) --- */
+    
+    /* 1. Xử lý nút Theme (Mặt trăng) */
+    #themeToggleBtn {
+      width: 40px !important;
+      height: 40px !important;
+      padding: 0 !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50% !important; /* Ép viền bo tròn tuyệt đối */
+      flex-shrink: 0; /* Ngăn chặn thuộc tính flexbox bóp méo hình dạng */
+      transition: all 0.3s ease;
+    }
+
+    /* 2. Xử lý định dạng khối cho nút Cart, Login và nút John */
+    .navbar .d-flex.align-items-center > a,
+    .navbar .d-flex.align-items-center > button:not(#themeToggleBtn),
+    .navbar .d-flex.align-items-center #userNavContainer a:not(.dropdown-item),
+    .navbar .d-flex.align-items-center #userNavContainer button:not(.dropdown-item) {
+      height: 40px !important; 
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px !important; 
+      padding: 0 1.25rem !important;
+      white-space: nowrap; 
+      flex-shrink: 0; 
+      transition: all 0.3s ease;
+    }
+
+    /* 3. Đồng bộ icon trong menu xổ xuống của tài khoản */
+    .dropdown-menu .dropdown-item {
+      padding: 0.5rem 1.25rem; /* Trả lại khoảng cách chuẩn cho menu */
+    }
+    
+    .dropdown-menu .dropdown-item i {
+      width: 24px;
+      text-align: center;
+      margin-right: 12px;
+    }
+
+    /* 3. Tinh chỉnh vị trí huy hiệu (Badge) đếm số lượng giỏ hàng */
+    /* Tinh chỉnh vị trí huy hiệu Giỏ hàng để không đè lên nút Login */
+    #navCartBadge {
+      position: absolute !important;
+      top: -6px !important;       /* Hơi nhô lên trên viền một chút */
+      right: -6px !important;     /* Neo sát vào góc phải, ngăn tràn sang nút kế bên */
+      left: auto !important;      /* Vô hiệu hóa class start-100 của Bootstrap */
+      transform: none !important; /* Vô hiệu hóa class translate-middle của Bootstrap */
+      z-index: 10;                /* Đảm bảo huy hiệu luôn nổi bật trên cùng */
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+      <i class="fa-solid fa-mountain-city text-primary fs-3"></i>
+      <span>Terra<span class="text-dark dark-text-light">Vista</span></span>
+    </a>
+      
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <i class="fa-solid fa-bars fs-4"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#categories">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#featured">Lands Catalog</a></li>
+          <li class="nav-item"><a class="nav-link active" href="contact.html">Contact Us</a></li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-secondary rounded-circle btn-sm p-2" id="themeToggleBtn" title="Toggle Theme">
+            <i class="fa-solid fa-moon" id="themeIcon"></i>
+          </button>
+
+          <a href="cart.html" class="btn btn-outline-primary position-relative rounded-pill px-3 py-2 btn-sm fw-semibold">
+            <i class="fa-solid fa-cart-shopping me-1"></i> Cart
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-dark border border-secondary shadow-sm d-none" id="navCartBadge">0</span>          </a>
+
+          <div id="userNavContainer">
+            <a href="login.html" class="btn btn-primary rounded-pill btn-sm px-3 py-2 fw-semibold">
+              <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="page-header text-center">
+    <div class="container">
+      <h1 class="fw-bold mb-2">Get in Touch with Land Specialists</h1>
+      <p class="lead opacity-90 mb-0">Schedule a site inspection, inquire about title deeds, or discuss custom parcel reservations.</p>
+    </div>
+  </header>
+
+  <!-- Main Contact Content -->
+  <section class="py-5">
+    <div class="container py-3">
+      <div class="row g-5">
+        <!-- Contact Form Column -->
+        <div class="col-lg-7">
+          <div class="contact-card">
+            <h3 class="fw-bold mb-1">Send Us a Message</h3>
+            <p class="text-muted small mb-4">Complete the form below and a licensed land consultant will respond within 24 hours.</p>
+
+            <form id="contactForm" onsubmit="handleContactSubmit(event)" novalidate>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small">Full Name <span class="text-danger">*</span></label>
+                  <input type="text" id="contactName" class="form-control" placeholder="Eleanor Vance" required>
+                  <div class="invalid-feedback">Please provide your full name.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small">Email Address <span class="text-danger">*</span></label>
+                  <input type="email" id="contactEmail" class="form-control" placeholder="name@example.com" required>
+                  <div class="invalid-feedback">Please enter a valid email address.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small">Phone Number <span class="text-danger">*</span></label>
+                  <input type="tel" id="contactPhone" class="form-control" placeholder="+1 (555) 000-0000" required>
+                  <div class="invalid-feedback">Please enter a phone number.</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small">Interested Land Type</label>
+                  <select id="contactLandType" class="form-select">
+                    <option value="Residential Lots">Residential Building Lots</option>
+                    <option value="Commercial Plots">Commercial Land</option>
+                    <option value="Agricultural Farmland">Agricultural Farmland</option>
+                    <option value="Waterfront Parcels">Waterfront Shoreline</option>
+                    <option value="General Inquiry">General System Inquiry</option>
+                  </select>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label fw-semibold small">Subject <span class="text-danger">*</span></label>
+                  <input type="text" id="contactSubject" class="form-control" placeholder="Site Visit Request for Lot 4B" required>
+                  <div class="invalid-feedback">Please enter a subject line.</div>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label fw-semibold small">Your Message <span class="text-danger">*</span></label>
+                  <textarea id="contactMessage" class="form-control" rows="5" placeholder="Include any specific questions about boundaries, survey documents, or financing..." required></textarea>
+                  <div class="invalid-feedback">Please enter your message.</div>
+                </div>
+
+                <div class="col-12 mt-4">
+                  <button type="submit" class="btn btn-primary rounded-pill px-4 py-2.5 fw-semibold">
+                    <i class="fa-solid fa-paper-plane me-2"></i> Submit Inquiry
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Contact Information & Office Details -->
+        <div class="col-lg-5">
+          <div class="d-flex flex-column gap-4">
+            <div class="contact-card p-4">
+              <h4 class="fw-bold mb-4">Headquarter Information</h4>
+
+              <div class="d-flex align-items-start gap-3 mb-4">
+                <div class="info-icon-box">
+                  <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-1">Office Location</h6>
+                  <p class="text-muted small mb-0">742 Evergreen Terrace, Suite 400<br>Grand Valley, GV 90210</p>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-start gap-3 mb-4">
+                <div class="info-icon-box">
+                  <i class="fa-solid fa-phone"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-1">Direct Phone Lines</h6>
+                  <p class="text-muted small mb-0">+1 (800) 555-LAND (Toll Free)<br>+1 (555) 019-2831 (Local Office)</p>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-start gap-3 mb-4">
+                <div class="info-icon-box">
+                  <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-1">Email Support</h6>
+                  <p class="text-muted small mb-0">sales@terravistasystem.com<br>support@terravistasystem.com</p>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-start gap-3">
+                <div class="info-icon-box">
+                  <i class="fa-solid fa-clock"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-1">Operating Hours</h6>
+                  <p class="text-muted small mb-0">Monday - Friday: 8:00 AM - 6:00 PM EST<br>Saturday: 9:00 AM - 2:00 PM EST</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Social Media Box -->
+            <div class="contact-card p-4">
+              <h5 class="fw-bold mb-3">Connect With Us</h5>
+              <p class="text-muted small mb-3">Follow our social channels for daily new land releases and auction announcements.</p>
+              <div class="d-flex gap-2">
+                <a href="#" class="btn btn-outline-primary rounded-circle"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" class="btn btn-outline-primary rounded-circle"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" class="btn btn-outline-primary rounded-circle"><i class="fa-brands fa-linkedin-in"></i></a>
+                <a href="#" class="btn btn-outline-primary rounded-circle"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="btn btn-outline-primary rounded-circle"><i class="fa-brands fa-youtube"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Toast Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;" id="toastContainer"></div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    function getCart() {
+      return JSON.parse(localStorage.getItem('landCart')) || [];
+    }
+
+    function getCurrentUser() {
+      return JSON.parse(localStorage.getItem('currentUser')) || null;
+    }
+
+    function updateCartBadge() {
+  const cart = getCart();
+  const count = cart.reduce((total, item) => total + (item.qty || 1), 0);
+
+  // Xử lý huy hiệu (badge) trên thanh Menu
+  const navBadge = document.getElementById('navCartBadge');
+  if (navBadge) {
+    navBadge.innerText = count;
+    // Nếu không có sản phẩm (count = 0) thì thêm class d-none để ẩn đi, ngược lại thì gỡ d-none để hiện ra
+    if (count === 0) {
+      navBadge.classList.add('d-none');
+    } else {
+      navBadge.classList.remove('d-none');
+    }
+  }
+
+  // Xử lý huy hiệu (badge) ở nút Giỏ hàng trôi nổi (dành riêng cho file index.html)
+  const floatingBadge = document.getElementById('floatingCartBadge');
+  if (floatingBadge) {
+    floatingBadge.innerText = count;
+    if (count === 0) {
+      floatingBadge.style.display = 'none';
+    } else {
+      floatingBadge.style.display = 'flex';
+      // Đổi màu nền trắng - chữ đen cho nút trôi nổi
+      floatingBadge.style.background = '#ffffff';
+      floatingBadge.style.color = '#000000';
+      floatingBadge.style.border = '1px solid #ccc';
+    }
+  }
+}
+
+    function updateNavUser() {
+      const user = getCurrentUser();
+      const container = document.getElementById('userNavContainer');
+      if (user) {
+        container.innerHTML = `
+          <div class="dropdown">
+            <button class="btn btn-outline-primary rounded-pill btn-sm dropdown-toggle fw-semibold px-3 py-2" type="button" data-bs-toggle="dropdown">
+              <i class="fa-solid fa-user-circle me-1"></i> ${user.name.split(' ')[0]}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+              <li><a class="dropdown-item" href="profile.html"><i class="fa-solid fa-id-card me-2 text-primary"></i> My Profile</a></li>
+              <li><a class="dropdown-item" href="cart.html"><i class="fa-solid fa-cart-shopping me-2 text-primary"></i> My Cart</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" onclick="logoutUser()"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
+            </ul>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <a href="login.html" class="btn btn-primary rounded-pill btn-sm px-3 py-2 fw-semibold">
+            <i class="fa-solid fa-right-to-bracket me-1"></i> Login
+          </a>
+        `;
+      }
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('currentUser');
+      showToast("Successfully logged out", "info");
+      updateNavUser();
+    }
+
+    function showToast(message, type = 'success') {
+      const toastContainer = document.getElementById('toastContainer');
+      const toastId = 'toast-' + Date.now();
+      const bgClass = type === 'success' ? 'bg-success text-white' : 'bg-primary text-white';
+
+      const html = `
+        <div id="${toastId}" class="toast align-items-center ${bgClass} border-0 shadow-lg rounded-3 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body fw-medium">
+              <i class="fa-solid fa-circle-check me-2"></i> ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      `;
+      toastContainer.insertAdjacentHTML('beforeend', html);
+      const toastElement = document.getElementById(toastId);
+      const bsToast = new bootstrap.Toast(toastElement, { delay: 3500 });
+      bsToast.show();
+      toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
+    }
+
+    // Contact Form Handler with Validation and LocalStorage
+    function handleContactSubmit(event) {
+      event.preventDefault();
+      const form = document.getElementById('contactForm');
+
+      if (!form.checkValidity()) {
+        event.stopPropagation();
+        form.classList.add('was-validated');
+        return;
+      }
+
+      const msgObj = {
+        id: 'msg-' + Date.now(),
+        name: document.getElementById('contactName').value.trim(),
+        email: document.getElementById('contactEmail').value.trim(),
+        phone: document.getElementById('contactPhone').value.trim(),
+        landType: document.getElementById('contactLandType').value,
+        subject: document.getElementById('contactSubject').value.trim(),
+        message: document.getElementById('contactMessage').value.trim(),
+        submittedAt: new Date().toISOString()
+      };
+
+      const existingMsgs = JSON.parse(localStorage.getItem('contactMessages')) || [];
+      existingMsgs.push(msgObj);
+      localStorage.setItem('contactMessages', JSON.stringify(existingMsgs));
+
+      showToast("Thank you! Your inquiry has been submitted successfully.", "success");
+      form.reset();
+      form.classList.remove('was-validated');
+    }
+
+    // Theme Switcher Logic
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-bs-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('themeIcon');
+      if (theme === 'dark') {
+        icon.className = 'fa-solid fa-sun text-warning';
+      } else {
+        icon.className = 'fa-solid fa-moon';
+      }
+    }
+
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-bs-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-bs-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeIcon(next);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      updateCartBadge();
+      updateNavUser();
+
+      // Pre-fill user data if logged in
+      const user = getCurrentUser();
+      if (user) {
+        document.getElementById('contactName').value = user.name || '';
+        document.getElementById('contactEmail').value = user.email || '';
+        document.getElementById('contactPhone').value = user.phone || '';
+      }
+    });
+  </script>
+</body>
+</html>
