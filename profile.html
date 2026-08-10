@@ -233,6 +233,23 @@
       transform: none !important; /* Vô hiệu hóa class translate-middle của Bootstrap */
       z-index: 10;                /* Đảm bảo huy hiệu luôn nổi bật trên cùng */
     }
+
+    /* Ép các Tab Menu trong Profile luôn nằm trên 1 hàng thẳng tắp */
+    #profileTab {
+      flex-wrap: nowrap !important; /* Tuyệt đối cấm bẻ dòng */
+      white-space: nowrap; /* Ép chữ luôn nằm trên 1 dòng */
+      overflow-x: auto; /* Cho phép cuộn ngang nếu màn hình bị thu hẹp */
+      overflow-y: hidden;
+    }
+
+    /* Ẩn thanh cuộn ngang để giao diện tinh tế và sang trọng hơn */
+    #profileTab::-webkit-scrollbar {
+      display: none;
+    }
+    #profileTab {
+      -ms-overflow-style: none;  /* Hỗ trợ hiển thị trên IE và Edge */
+      scrollbar-width: none;  /* Hỗ trợ hiển thị trên Firefox */
+    }
   </style>
 </head>
 <body>
