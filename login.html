@@ -79,31 +79,39 @@
       color: var(--primary-color) !important;
     }
 
-    /* Căn giữa và tạo khoảng cách cho các khối menu */
-    .navbar-nav {
-      gap: 0.5rem;
-      align-items: center; /* QUAN TRỌNG: Ngăn các thẻ bị kéo giãn chiều dọc */
+    /* --- ÉP MÀU NỀN ĐẶC (TRẮNG/TỐI) CHO THANH ĐIỀU HƯỚNG --- */
+    .navbar {
+      background-color: var(--card-bg) !important; /* QUAN TRỌNG: Đổ màu nền đặc (trắng ở Light Mode, đen ở Dark Mode) */
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      z-index: 1020 !important; /* Ép menu luôn nổi lên trên cùng, không bị hình ảnh đè lên */
     }
 
-    /* Thiết kế hình khối cho các thẻ menu */
+    /* --- ÉP MÀU NỀN ĐẶC CHO TỪNG KHỐI MENU --- */
     .nav-link {
       font-weight: 500;
       color: var(--text-dark) !important;
-      padding: 0.4rem 1rem !important; /* Cân chỉnh lại độ dày trên/dưới cho gọn gàng hơn */
-      background-color: transparent; 
+      padding: 0.4rem 1rem !important; 
+      background-color: var(--card-bg) !important; /* QUAN TRỌNG: Đổi từ transparent thành màu nền đặc để chữ không bao giờ bị chìm */
       border: 1px solid var(--border-color); 
-      border-radius: 8px; /* Bo góc khối */
+      border-radius: 8px; 
       transition: all 0.3s ease; 
-      white-space: nowrap; /* QUAN TRỌNG: Ép chữ luôn nằm trên 1 dòng, không bị rớt chữ */
+      white-space: nowrap; 
       display: inline-flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* Hiệu ứng khi di chuột (hover) hoặc khi đang chọn (active) */
+    /* Căn giữa và tạo khoảng cách cho các khối menu */
+    .navbar-nav {
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    /* Hiệu ứng khi di chuột hoặc đang chọn */
     .nav-link:hover, .nav-link.active {
       color: var(--primary-color) !important; 
-      background-color: var(--bg-light); 
+      background-color: var(--bg-light) !important; 
       border-color: var(--primary-color); 
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
     }
@@ -210,24 +218,24 @@
 
     /* --- TỐI ƯU HÓA ĐỒNG BỘ MENU TRÊN ĐIỆN THOẠI & TABLET --- */
     @media (max-width: 991px) {
-      /* 1. Ép toàn bộ danh sách menu dạt về lề trái để thẳng hàng */
+      /* 1. Ép toàn bộ danh sách menu ra chính giữa màn hình */
       #navbarMain .navbar-nav {
-        align-items: flex-start !important; 
+        align-items: center !important; 
         margin-top: 1rem;
         margin-bottom: 1.5rem !important;
         width: 100%;
       }
       
-      /* 2. Kéo giãn các khối menu dài 100% ngang màn hình để dễ vuốt/chạm */
+      /* 2. Trả lại kích thước khối menu vừa vặn với chữ */
       #navbarMain .nav-link {
-        width: 100% !important;
-        justify-content: flex-start !important; /* Đẩy chữ về sát mép trái */
-        padding-left: 1rem !important;
+        width: auto !important; /* Gỡ bỏ việc ép rộng 100% */
+        justify-content: center !important; 
+        padding: 0.4rem 1.5rem !important; /* Giữ khoảng cách 2 bên chữ rộng rãi dễ bấm chạm */
       }
 
-      /* 3. Ép cụm nút tiện ích (Mặt trăng, Cart, Login) dạt về lề trái cho thẳng hàng với menu trên */
+      /* 3. Ép cụm nút tiện ích (Mặt trăng, Cart, Login) ra chính giữa */
       #navbarMain .d-flex {
-        justify-content: flex-start !important;
+        justify-content: center !important;
         width: 100%;
         margin-bottom: 1rem;
       }
