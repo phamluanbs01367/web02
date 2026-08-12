@@ -255,6 +255,28 @@
         margin-bottom: 1rem;
       }
     }
+    /* =========================================================
+   Sửa lỗi định vị Hình tròn (Số 1) trong trang Cart trên Mobile/Tablet 
+   ========================================================= */
+@media (max-width: 991.98px) {
+  /* 1. KHÓA KÍCH THƯỚC: Chống hiện tượng hình tròn bị bóp nghẹt thành hình oval */
+  .rounded-circle, 
+  .badge.rounded-pill {
+    flex-shrink: 0 !important;
+  }
+
+  /* 2. CĂN GIỮA: Nếu cấu trúc Cart bị đẩy thành cột dọc, ép hình tròn ra chính giữa */
+  .flex-column > .rounded-circle,
+  .d-flex.flex-column > * > .rounded-circle {
+    align-self: center !important;
+    margin: 10px auto !important; /* Tạo khoảng thở trên/dưới để không dính vào chữ */
+  }
+  
+  /* 3. CHỐNG TRÀN VIỀN: Nếu vòng tròn số 1 là Badge đính ở góc (VD: giỏ hàng hoặc ảnh), kéo nhẹ nó vào trong */
+  .position-absolute.translate-middle {
+    left: 85% !important; /* Bootstrap mặc định là start-100 (100%), dễ làm vòng tròn bị đẩy tràn ra ngoài mép điện thoại */
+  }
+}
 
   </style>
 </head>
