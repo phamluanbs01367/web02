@@ -209,8 +209,12 @@
 
     /* 3. Tinh chỉnh vị trí huy hiệu (Badge) đếm số lượng giỏ hàng */
     #navCartBadge {
-      transform: translate(25%, -25%) !important; /* Kéo huy hiệu sát lại góc nút */
-      border: 2px solid var(--card-bg); /* Thêm viền trùng màu nền để tạo độ nổi 3D */
+      position: absolute !important;
+      top: -6px !important;       /* Hơi nhô lên trên viền một chút */
+      right: -6px !important;     /* Neo sát vào góc phải, ngăn tràn sang nút kế bên */
+      left: auto !important;      /* Vô hiệu hóa class start-100 của Bootstrap */
+      transform: none !important; /* Vô hiệu hóa class translate-middle của Bootstrap */
+      z-index: 10;                /* Đảm bảo huy hiệu luôn nổi bật trên cùng */
     }
 
 
