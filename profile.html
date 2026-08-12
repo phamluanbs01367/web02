@@ -319,6 +319,48 @@
 
   <!-- Profile Content Container -->
   <main class="container py-5">
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-primary text-white p-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <div class="text-white-50 small fw-medium text-uppercase mb-1"><i class="fa-solid fa-wallet me-2"></i>Available Escrow Balance</div>
+      <h2 class="fw-bold mb-0" id="walletBalanceDisplay">$0</h2>
+    </div>
+    <button class="btn btn-light rounded-pill px-4 fw-semibold text-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#topUpModal">
+      <i class="fa-solid fa-circle-plus me-2"></i> Top Up Funds
+    </button>
+  </div>
+</div>
+
+<div class="modal fade" id="topUpModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 p-4">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold"><i class="fa-solid fa-money-bill-transfer text-primary me-2"></i>Top Up Investor Balance</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body py-4">
+        <form id="topUpForm" onsubmit="handleTopUp(event)">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Select Top-up Amount ($)</label>
+            <select class="form-select mb-2" id="quickTopUpSelect" onchange="document.getElementById('topUpAmountInput').value = this.value">
+              <option value="50000">$50,000</option>
+              <option value="100000" selected>$100,000</option>
+              <option value="250000">$250,000</option>
+              <option value="500000">$500,000</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Or Enter Custom Amount ($)</label>
+            <input type="number" id="topUpAmountInput" class="form-control" value="100000" min="1000" step="1000" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 rounded-pill py-2.5 fw-semibold mt-2">
+            <i class="fa-solid fa-check me-2"></i> Confirm Top-up
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
     
     <!-- Non-Logged In State Alert -->
     <div id="guestAlertState" class="d-none text-center py-5">
@@ -764,6 +806,40 @@
       updateCartBadge();
       renderProfile();
     });
+
+    // --- LOGIC XỬ LÝ VÍ TÀI KHOẢN ---
+function loadUserProfile() {
+  // Lấy dữ liệu user, nếu người mới thì cho sẵn 200,000$ làm vốn
+  let user = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Investor John', walletBalance: 200000 };
+  if (user.walletBalance === undefined) {
+    user.walletBalance = 200000; 
+    localStorage.setItem('currentUser', JSON.stringify(user));
+  }
+  
+  const balanceEl = document.getElementById('walletBalanceDisplay');
+  if (balanceEl) {
+    balanceEl.innerText = '$' + Number(user.walletBalance).toLocaleString();
+  }
+}
+
+function handleTopUp(event) {
+  event.preventDefault();
+  const amount = Number(document.getElementById('topUpAmountInput').value);
+  if (isNaN(amount) || amount <= 0) return;
+
+  let user = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Investor John', walletBalance: 0 };
+  user.walletBalance = (user.walletBalance || 0) + amount;
+  localStorage.setItem('currentUser', JSON.stringify(user));
+
+  bootstrap.Modal.getInstance(document.getElementById('topUpModal')).hide();
+  loadUserProfile(); // Cập nhật lại số dư trên màn hình
+  alert(`Successfully deposited $${amount.toLocaleString()} into your account wallet!`);
+}
+
+// Gọi hàm này khi tải trang
+document.addEventListener('DOMContentLoaded', () => {
+  loadUserProfile();
+});
   </script>
 </body>
 </html>
