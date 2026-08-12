@@ -236,6 +236,30 @@
       transform: none !important; /* Vô hiệu hóa class translate-middle của Bootstrap */
       z-index: 10;                /* Đảm bảo huy hiệu luôn nổi bật trên cùng */
     }
+    /* --- TỐI ƯU HÓA ĐỒNG BỘ MENU TRÊN ĐIỆN THOẠI & TABLET --- */
+    @media (max-width: 991px) {
+      /* 1. Ép toàn bộ danh sách menu ra chính giữa màn hình */
+      #navbarMain .navbar-nav {
+        align-items: center !important; 
+        margin-top: 1rem;
+        margin-bottom: 1.5rem !important;
+        width: 100%;
+      }
+      
+      /* 2. Trả lại kích thước khối menu vừa vặn với chữ */
+      #navbarMain .nav-link {
+        width: auto !important; /* Gỡ bỏ việc ép rộng 100% */
+        justify-content: center !important; 
+        padding: 0.4rem 1.5rem !important; /* Giữ khoảng cách 2 bên chữ rộng rãi dễ bấm chạm */
+      }
+
+      /* 3. Ép cụm nút tiện ích (Mặt trăng, Cart, Login) ra chính giữa */
+      #navbarMain .d-flex {
+        justify-content: center !important;
+        width: 100%;
+        margin-bottom: 1rem;
+      }
+    }
 
   </style>
 </head>
