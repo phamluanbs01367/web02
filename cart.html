@@ -389,20 +389,23 @@
               </div>
 
               <div class="col-md-6">
-                <label class="form-label fw-semibold small">Preferred Payment Option</label>
-                <select id="chkPayment" class="form-select">
-                  <option value="Direct Bank Wire Transfer">Direct Bank Wire Transfer</option>
-                  <option value="12-Month Installment Plan">12-Month Installment Plan</option>
-                  <option value="Escrow Deposit Holding">Escrow Deposit Holding</option>
-                </select>
-              </div>
+  <label class="form-label fw-semibold small">Preferred Payment Option</label>
+  <select id="chkPayment" class="form-select" onchange="toggleWalletNotice(this.value)">
+    <option value="Escrow Wallet">Account Escrow Wallet (Pay via Balance)</option>
+    <option value="Direct Bank Wire Transfer">Direct Bank Wire Transfer</option>
+    <option value="12-Month Installment Plan">12-Month Installment Plan</option>
+  </select>
+</div>
 
-              <div class="col-12">
-                <div class="p-3 bg-body-tertiary rounded-3 border">
-                  <div class="fw-bold small mb-1"><i class="fa-solid fa-circle-info text-primary me-1"></i> Secure Escrow Notice</div>
-                  <small class="text-muted">Your transaction is secured via our Escrow holding system. The deposit will be held securely until the final title deed conveyance is legally verified by regional authorities.</small>
-                </div>
-              </div>
+<div class="col-12" id="walletBalanceNotice">
+  <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+    <div>
+      <div class="small text-muted"><i class="fa-solid fa-wallet text-primary me-1"></i> Available Balance:</div>
+      <strong class="fs-5 text-dark" id="checkoutWalletDisplay">$0</strong>
+    </div>
+    <a href="profile.html" class="btn btn-sm btn-outline-primary rounded-pill fw-semibold">Top Up</a>
+  </div>
+</div>
 
               <div class="col-12 mt-4">
                 <button type="submit" class="btn btn-primary w-100 rounded-pill py-2.5 fw-semibold">
@@ -755,6 +758,25 @@
       updateNavUser();
       renderCart();
     });
+
+    function triggerCheckout() {
+  const user = getCurrentUser();
+  if (user) {
+    document.getElementById('chkName').value = user.name || '';
+    document.getElementById('chkEmail').value = user.email || '';
+    document.getElementById('chkPhone').value = user.phone || '';
+  }
+
+  // Hiển thị số dư
+  const balance = user ? (user.walletBalance || 0) : 200000;
+  const walletDisplay = document.getElementById('checkoutWalletDisplay');
+  if (walletDisplay) {
+    walletDisplay.innerText = '$' + Number(balance).toLocaleString();
+  }
+
+  const modal = new bootstrap.Modal(document.getElementById('checkoutModal'));
+  modal.show();
+}
   </script>
 </body>
 </html>
